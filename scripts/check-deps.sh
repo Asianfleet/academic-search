@@ -113,3 +113,51 @@ if [ -n "$CHROME_PORT" ]; then
 else
   echo "proxy: skipped (Chrome 未连接，API 模式不需要 proxy)"
 fi
+
+# --- API Key / 凭据检查（只输出是否可用，不打印 key 内容） ---
+echo ""
+echo "--- API Key / 凭据检查 ---"
+
+# 检查一组候选环境变量中是否有任一非空；只输出变量名，绝不输出其值。
+# 用法：check_cred <类别> <平台名> <说明> <候选变量名...>
+check_cred() {
+  local category="$1"
+  local platform="$2"
+  local note="$3"
+  shift 3
+  local found=""
+  for var in "$@"; do
+    if [ -n "${!var:-}" ]; then
+      found="$var"
+      break
+    fi
+  done
+  if [ -n "$found" ]; then
+    printf '%-8s %-20s: ok (检测到 $%s)\n' "$category" "$platform" "$found"
+  else
+    printf '%-8s %-20s: missing (可选变量: %s)\n' "$category" "$platform" "$*"
+    if [ -n "$note" ]; then
+      printf '          %s\n' "$note"
+    fi
+  fi
+}
+
+# 真正需要 API Key 的平台（鉴权 header / apikey 参数）
+check_cred "api-key" "Semantic Scholar" "无 Key 时速率上限极低，多次调用易触发 429" \
+  S2_API_KEY SEMANTIC_SCHOLAR_API_KEY SEMANTICSCHOLAR_API_KEY
+
+check_cred "api-key" "IEEE Xplore" "无 Key 无法用官方 API，可回退 WebFetch/CDP" \
+  IEEE_API_KEY IEEE_XPLORE_API_KEY XPLORE_API_KEY
+
+check_cred "api-key" "PubMed/NCBI" "无 Key 时 3 req/s，有 Key 10 req/s" \
+  NCBI_API_KEY EUTILS_API_KEY NCBI_EUTILS_API_KEY
+
+check_cred "api-key" "Crossref" "Crossref-Plus Key 提升速率；无 Key 时用 mailto 参数" \
+  CROSSREF_API_KEY CROSSREF_PLUS_API_KEY CR_API_KEY
+
+# 邮箱类凭据（不是 API Key，但影响 polite pool / 必填参数）
+check_cred "email" "OpenAlex" "设置邮箱进入 polite pool（User-Agent/mailto 带邮箱）" \
+  OPENALEX_EMAIL CONTACT_EMAIL
+
+check_cred "email" "Unpaywall" "必须带 email 参数" \
+  UNPAYWALL_EMAIL
