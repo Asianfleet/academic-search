@@ -9,10 +9,18 @@ metadata:
 
 ## 前置检查
 
-在开始前，检查环境就绪状态：
+在开始前，检查环境就绪状态。
+
+macOS / Linux / Bash：
 
 ```bash
 bash scripts/check-deps.sh
+```
+
+Windows PowerShell：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
 ```
 
 - **Node.js 22+**：必需（用于 CDP 浏览器模式）。仅使用 API 平台时可不检查。
@@ -309,8 +317,16 @@ Google Scholar 作者页需 CDP，见 `references/site-patterns/scholar.google.c
 
 ### 启动
 
+macOS / Linux / Bash：
+
 ```bash
 bash scripts/check-deps.sh
+```
+
+Windows PowerShell：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
 ```
 
 脚本自动检查并启动 CDP Proxy（默认 `127.0.0.1:3456`，可通过 `CDP_PROXY_PORT` 覆盖）。

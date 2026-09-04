@@ -176,7 +176,9 @@ academic-search/
 ├── wechat-promo.md             # 推广介绍文案
 ├── scripts/
 │   ├── cdp-proxy.mjs           # CDP Proxy，直连用户 Chrome
-│   ├── check-deps.sh           # 环境检查
+│   ├── check-deps.sh           # macOS/Linux 环境检查 + 自动启动 Proxy
+│   ├── check-deps.ps1           # Windows PowerShell 环境检查 + 自动启动 Proxy
+│   ├── check-deps-self-test.ps1 # PowerShell 版本回归测试
 │   ├── oa-pdf-download.mjs     # 开放 PDF manifest 生成与下载
 │   ├── oa-pdf-download-self-test.sh # 开放 PDF 下载 helper 回归测试
 │   ├── self-test.sh            # 本地回归测试

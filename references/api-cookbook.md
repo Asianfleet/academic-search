@@ -380,10 +380,19 @@ curl -s -A "Mozilla/5.0" "https://ieeexplore.ieee.org/document/9607200/"
 
 ### CDP 操作流程
 
-```bash
-# 1. 确保 CDP Proxy 就绪
-bash scripts/check-deps.sh
+macOS / Linux / Bash：
 
+```bash
+bash scripts/check-deps.sh
+```
+
+Windows PowerShell：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
+```
+
+```bash
 # 2. 打开 Google Scholar 搜索页
 TARGET=$(curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/new?url=https://scholar.google.com" | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).targetId")
 
@@ -431,10 +440,19 @@ curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/close?target=$TARGET"
 
 ### CDP 操作流程
 
-```bash
-# 1. 确保 CDP Proxy 就绪
-bash scripts/check-deps.sh
+macOS / Linux / Bash：
 
+```bash
+bash scripts/check-deps.sh
+```
+
+Windows PowerShell：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
+```
+
+```bash
 # 2. 打开知网检索页（KNS8 新版界面）
 TARGET=$(curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/new?url=https://kns.cnki.net/kns8/defaultresult/index" \
   | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).targetId")

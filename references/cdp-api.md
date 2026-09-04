@@ -134,7 +134,7 @@ document.readyState
 | `attach 失败` | targetId 无效或 tab 已关闭 | 用 `/targets` 获取最新列表 |
 | `CDP 命令超时` | 页面长时间未响应 | 重试或用 `/info` 检查 tab 状态 |
 | `端口已被占用` | 另一个 proxy 实例在运行 | 已有实例可直接复用，用 `/health` 确认 |
-| `WebSocket 未连接` | Proxy 启动后 Chrome 断连 | 重新运行 `check-deps.sh` 重连 |
+| `WebSocket 未连接` | Proxy 启动后 Chrome 断连 | macOS/Linux 重新运行 `check-deps.sh`；Windows PowerShell 重新运行 `check-deps.ps1` |
 
 ---
 

@@ -40,7 +40,15 @@
 
 ```bash
 git clone https://github.com/Mingyue-Cheng/academic-search ~/.claude/skills/academic-search
+
+# macOS / Linux / Bash
 bash ~/.claude/skills/academic-search/scripts/check-deps.sh
+```
+
+Windows PowerShell：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "$HOME\.claude\skills\academic-search\scripts\check-deps.ps1"
 ```
 
 然后直接对 Claude Code 说：
@@ -234,7 +242,9 @@ academic-search/
 ├── SKILL.md                    # 主指令文件（搜索哲学、平台矩阵、核心能力）
 ├── scripts/
 │   ├── cdp-proxy.mjs           # CDP Proxy（直连用户 Chrome）
-│   ├── check-deps.sh           # 环境检查 + 自动启动 Proxy
+│   ├── check-deps.sh           # macOS/Linux 环境检查 + 自动启动 Proxy
+│   ├── check-deps.ps1          # Windows PowerShell 环境检查 + 自动启动 Proxy
+│   ├── check-deps-self-test.ps1 # PowerShell 版本回归测试
 │   ├── oa-pdf-download.mjs     # OA PDF manifest 生成与开放 PDF 下载
 │   ├── oa-pdf-download-self-test.sh # OA PDF 下载 helper 回归测试
 │   ├── self-test.sh            # 本地回归测试

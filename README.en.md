@@ -39,7 +39,15 @@ Compared with generic WebSearch and WebFetch, this skill focuses on three things
 
 ```bash
 git clone https://github.com/Mingyue-Cheng/academic-search ~/.claude/skills/academic-search
+
+# macOS / Linux / Bash
 bash ~/.claude/skills/academic-search/scripts/check-deps.sh
+```
+
+Windows PowerShell:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "$HOME\.claude\skills\academic-search\scripts\check-deps.ps1"
 ```
 
 Once installed, you can immediately ask Claude Code to perform an academic search task, for example:
@@ -171,8 +179,16 @@ CDP mode requires **Node.js 22+** and Chrome remote debugging:
 
 Environment check (the agent runs this automatically — no need to run manually):
 
+macOS / Linux / Bash:
+
 ```bash
 bash ~/.claude/skills/academic-search/scripts/check-deps.sh
+```
+
+Windows PowerShell:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "$HOME\.claude\skills\academic-search\scripts\check-deps.ps1"
 ```
 
 ## Testing
@@ -306,11 +322,23 @@ Full-text retrieval only uses legal open-access routes. A reachable publisher pa
 
 The Proxy connects to Chrome via WebSocket (compatible with the `chrome://inspect` method — no command-line flags needed) and exposes an HTTP API:
 
-```bash
-# The agent manages the Proxy lifecycle automatically — no manual startup needed
-bash ~/.claude/skills/academic-search/scripts/check-deps.sh
+The agent manages the Proxy lifecycle automatically — no manual startup needed.
 
-# Page operations
+macOS / Linux / Bash:
+
+```bash
+bash ~/.claude/skills/academic-search/scripts/check-deps.sh
+```
+
+Windows PowerShell:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "$HOME\.claude\skills\academic-search\scripts\check-deps.ps1"
+```
+
+Page operations:
+
+```bash
 curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/new?url=https://scholar.google.com"           # Open new tab
 curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/eval?target=ID" -d 'document.title'  # Execute JS
 curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/click?target=ID" -d 'button.submit'  # Click element
@@ -336,7 +364,9 @@ academic-search/
 │   └── multidisciplinary-improvement-analysis.md
 ├── scripts/
 │   ├── cdp-proxy.mjs                 # CDP Proxy HTTP server (connects to user's Chrome)
-│   ├── check-deps.sh                 # Environment check + auto-start Proxy
+│   ├── check-deps.sh                 # macOS/Linux environment check + auto-start Proxy
+│   ├── check-deps.ps1                # Windows PowerShell environment check + auto-start Proxy
+│   ├── check-deps-self-test.ps1      # PowerShell regression test
 │   ├── oa-pdf-download.mjs           # OA PDF manifest generation and open PDF download
 │   ├── oa-pdf-download-self-test.sh  # Regression test for OA PDF download helper
 │   ├── self-test.sh                  # Base local regression test (requires Chrome remote debugging)
