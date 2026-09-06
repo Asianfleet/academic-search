@@ -43,7 +43,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
 - **curl**：必需，用于 API 调用。
 - **API Key**：部分 API 平台需要 API Key 来获取访问权限 / 放宽速率限制。
 
-**S2 API Key（可用时务必使用）**：无 Key 时 S2 速率上限极低，单 session 多次调用必触发 429。有 Key 时速率为 1 RPS（所有 endpoints 累计计算）。使用 Key 时必须在请求头加 `x-api-key: {your_key}`。
+> **S2 API Key（可用时务必使用）**：无 Key 时 S2 速率上限极低，单 session 多次调用必触发 429。有 Key 时速率为 1 RPS（所有 endpoints 累计计算）。使用 Key 时必须在请求头加 `x-api-key: {your_key}`。
+>
+> **S2 速率限制调用守则**：主代理与所有子 Agent 调用 Semantic Scholar 时必须遵守的速率纪律（串行 + sleep + 批量优先）已集中收录于 `references/api-cookbook/semantic-scholar.md` 的「S2 速率限制调用守则」一节。涉及 S2 时务必先读该节并严格遵循，详情见并行分治策略一节。
 
 ## 搜索哲学
 
@@ -144,7 +146,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
    - 学科受控词表：医学用 MeSH，经济用 JEL，数学用 MSC，计算机用 ACM CCS，化学可补 CAS/化合物同义词
    - 不同 query 结果合并去重，覆盖率比单 query 提升 30-50%
 3. 构造查询：arXiv 用 `search_query` 字段前缀语法；S2 用 `query` 参数；PubMed 用 `term` 布尔表达式
-4. **计划多次 S2 调用时优先用 batch API**（`/paper/batch`）而非多次 search，节省速率配额
+4. **计划多次 S2 调用时优先用 batch API**（`/paper/batch`）而非多次 search，节省速率配额（详见「S2 速率限制调用守则」）
 5. **第一遍输出轻量摘要表**（必含：标题、年份、venue、引用数、是否有开放 PDF），**不默认拉完整摘要**
 6. **意图判断**：用户明确说"只要前 N 篇"或"摘要表即可"时，直接输出第一遍结果，无需等待确认再停下
 7. 用户需要第二遍时，再深拉完整元数据
@@ -394,6 +396,7 @@ curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/close?target=$TARGET"
 - 必须写：`必须加载 academic-search skill 并遵循指引`
 - 描述**目标**（获取/提取/查找），不要指定具体步骤
 - 说明需要哪些字段（标题/引用数/PDF 等）
+- **S2 权限**：详见下文
 - **注意用词**：「搜索 BERT 的引用数」会把子 Agent 锚定到 WebSearch；应写「获取 BERT 的引用数」——描述目标，不暗示手段
 
 **典型分治场景**：
@@ -409,6 +412,15 @@ curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/close?target=$TARGET"
 子 Agent 返回结果后，主 Agent 按 `references/metadata-schema.md` 中的去重规则合并：DOI 为主键 → arXiv ID 次之 → 标题+年份模糊匹配。
 
 子 Agent 产生的中间结果必须保存在当前任务目录内的独立路径，并由主 Agent 纳入最终产物索引和报告。
+
+**并行分治下的 S2 调用规则（重要）**：
+
+并行分治时，S2 一律由**且仅由一个专属子 Agent**负责调用；该子 Agent 负责接收其他子 Agent 的产出（论文标题 / DOI / arXiv ID 等）并做元数据补全。除该专属子 Agent 外，其余子 Agent**一律禁用 S2**（不得调用任何 S2 endpoint，包括 search、batch、author、引用关系等）。保证同一时刻对 S2 的请求是**单线程、单出口**，避免多个子 Agent 同时冲击 1 RPS 配额。
+
+给子 Agent 的提示词必须`显式声明 S2 权限`：
+
+- **专属 S2 子 Agent**：`可以调用 Semantic Scholar API；必须遵守「S2 速率限制调用守则」（串行 + sleep + 批量优先），详见 references/api-cookbook/semantic-scholar.md。`
+- **其他子 Agent**：`不得调用 Semantic Scholar API（包括 search、batch、author、引用关系等任何端点）。需要 S2 数据时，将论文标题 / DOI / arXiv ID 整理后交给专属 S2 子 Agent，或回报主 Agent。`
 
 ## 信息核实
 
