@@ -7,9 +7,9 @@ metadata:
 
 # academic-search Skill
 
-## 前置检查
+## 执行前置检查（无条件遵守，绝不能跳过）
 
-在开始前，检查环境就绪状态。
+在任务开始前，尤其是**调用任何 API、WebSearch / WebFetch、CDP 之前**，必须执行下面的检查，以明确当前环境配置。忽略这一步将导致最终产出直接被判为**不合格**。
 
 macOS / Linux / Bash：
 
@@ -23,13 +23,14 @@ Windows PowerShell：
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
 ```
 
-- **Node.js 22+**：必需（用于 CDP 浏览器模式）。仅使用 API 平台时可不检查。
-- **Chrome remote-debugging**：仅在访问 Google Scholar 或其他需要浏览器自动化的平台时必需。在 Chrome 地址栏打开 `chrome://inspect/#remote-debugging`，勾选 **Allow remote debugging for this browser instance**。
+本技能涉及的依赖以及作用：
+
+- **Node.js 22+**：CDP 浏览器模式下必需。仅使用 API 平台时可选。
+- **Chrome remote-debugging**：仅在访问 Google Scholar 或其他需要浏览器自动化的平台时必需。在 Chrome 地址栏打开 `chrome://inspect/#remote-debugging`，勾选 **Allow remote debugging for this browser instance**。arXiv、Semantic Scholar、PubMed、Papers with Code 等 API 平台无需 Chrome 远程调试即可使用。
 - **curl**：必需，用于 API 调用。
+- **API Key**：部分 API 平台需要 API Key 来获取访问权限 / 放宽速率限制。
 
-arXiv、Semantic Scholar、PubMed、Papers with Code 等 API 平台无需 Chrome 远程调试即可使用。
-
-**S2 API Key（强烈建议）**：无 Key 时 S2 速率上限极低，单 session 多次调用必触发 429。免费注册即可获得更高配额：https://www.semanticscholar.org/product/api#api-key-form。有 Key 时在请求头加 `x-api-key: {your_key}`。
+**S2 API Key（可用时务必使用）**：无 Key 时 S2 速率上限极低，单 session 多次调用必触发 429。有 Key 时速率为 1 RPS（所有 endpoints 累计计算）。使用 Key 时必须在请求头加 `x-api-key: {your_key}`。
 
 ## 搜索哲学
 
