@@ -2,10 +2,23 @@
 name: academic-search
 description: 学术论文搜索、引用分析、开放获取 PDF 判定与结构化元数据提取专用 Skill。Use when the user asks to search/find papers, do literature review/survey/systematic review/PRISMA work, get citation counts, export BibTeX/RIS-style references, find papers by author, inspect PDF/open-access availability, or work with arXiv, Semantic Scholar, OpenAlex, Crossref, Unpaywall, PubMed, Google Scholar, ACM DL, IEEE Xplore, Papers with Code, CNKI, ScienceDirect, Wiley, Springer, ACS, MeSH, JEL, MSC, or ACM CCS.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # academic-search Skill
+
+## 任务产物协议（无条件遵守，绝不能跳过）
+
+纯问答默认只在对话中回答；论文检索、引用分析、综述、作者/机构分析、批量元数据、BibTeX/RIS 导出、OA 判定或 PDF 清单等复杂任务默认产出文件。用户明确要求仅对话回答时，以用户要求为准。
+
+需要产出的任务，必须在任何 API、网页、CDP、子 Agent 或依赖检查前创建集中任务目录，并写入 `protocol.md`。未指定位置时使用 `<workspace>/_academic-search/<task-id>/`。中间产物文件名和层级不固定，但不得散落在任务目录之外。任务目录必须包含：
+
+- `protocol.md`：原始需求、任务类型、范围与排除项、成功标准、预定来源、检索/分析方法、字段和预期交付物。
+- `report.md`：最终结果、方法、来源与时间、统计、局限及未完成项。
+- `trace.md`：按执行顺序记录完整审计/复现轨迹。使用 Markdown 表格，按执行顺序记录：`时间 | 平台 | query/URL | 动作 | 命中数 | 结果 | 失败信号及回退`。不得记录 API Key、Cookie、Authorization 头、用户身份信息或含令牌/密钥的 URL；必要时脱敏。失败、重试、平台切换和回退也必须记录。子 Agent 的中间结果必须写入该任务目录，最终由主 Agent 登记并汇总。
+- `manifest.json`：列出任务目录内所有产物、用途、生成时间和必要的记录统计。
+
+执行中及时保存检索、筛选、去重、引用分析、OA 判断和下载等关键阶段的中间结果，并在 `manifest.json` 中登记。调整检索式、平台或范围时，追加写入 `protocol.md` 的变更记录。
 
 ## 执行前置检查（无条件遵守，绝不能跳过）
 
@@ -38,7 +51,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
 
 学术搜索不同于通用网页浏览——目标是获取**准确、结构化**的论文元数据，而不是浏览网页内容。
 
-**① 明确检索目标，定义成功标准**：执行前先明确什么算完成了。
+**① 建立协议并明确检索目标**：对需要产出的任务，先创建 `protocol.md`，再明确什么算完成了。
 
 - 关键词搜索？精确论文？某作者的全部论文？某 venue 的论文列表？
 - 学科是什么？是否需要使用 MeSH、JEL、MSC、ACM CCS 等受控词表？
@@ -54,7 +67,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
 - **第一遍（轻量扫描）**：先拉 20-30 条结果，输出轻量摘要表——标题、作者、年份、venue、引用数、是否有开放 PDF/代码。不拉完整摘要。
 - **用户或任务确认核心论文**（引用数高、venue 等级高、与目标最相关的 5-10 篇）后，**第二遍**再深入拉摘要、PDF、BibTeX 等完整信息。
 
-所有结果输出为统一 schema（见 `references/metadata-schema.md`），不要输出原始 HTML 或非结构化文本。多平台结果用 DOI/arXiv ID 去重合并。
+所有结果输出为统一 schema（见 `references/metadata-schema.md`），并及时保存为任务目录内的中间产物；不要输出原始 HTML 或非结构化文本。多平台结果用 DOI/arXiv ID 去重合并。
 
 **④ 过程校验，用失败信号更新方向**：每一步的结果都是信息，不只是成功或失败的二元信号。
 
@@ -190,6 +203,8 @@ curl -s "https://api.semanticscholar.org/graph/v1/paper/ARXIV:{arxiv_id}?fields=
 
 所有提取结果必须转换为 `references/metadata-schema.md` 定义的标准 JSON schema。输出时：
 
+- 产出任务必须保存标准化结果、合并结果或其他等价中间产物，并登记到 `manifest.json`。
+
 - **单篇**：Markdown 表格格式，字段清晰
 - **多篇**：Markdown 列表表格（标题、作者、年份、Venue、引用数、PDF 链接）
 - **批量导出**：JSON 数组
@@ -261,8 +276,8 @@ Academic-Search 可以下载合法开放访问 PDF，但边界必须清楚：
 
 1. 搜索/精确查询论文，生成标准 metadata schema。
 2. 通过 arXiv、Semantic Scholar、OpenAlex、Unpaywall、PubMed Central 判断 `full_text_status` 和 `pdf_url`。
-3. 调用 `scripts/oa-pdf-download.mjs --input <metadata.json> --manifest <manifest.json>` 生成下载清单。
-4. 用户确认后，调用 `scripts/oa-pdf-download.mjs --input <metadata.json> --manifest <manifest.json> --download --out-dir <dir>` 下载开放 PDF。
+3. 在当前任务目录中生成下载清单，并调用 `scripts/oa-pdf-download.mjs --input <metadata.json> --manifest <manifest.json>`。
+4. 用户确认后，将开放 PDF 下载到当前任务目录内，再调用 `scripts/oa-pdf-download.mjs --input <metadata.json> --manifest <manifest.json> --download --out-dir <dir>`。
 5. 输出下载结果表：标题、DOI/arXiv ID、状态、本地路径、跳过原因。
 
 CLI 示例：
@@ -393,6 +408,8 @@ curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/close?target=$TARGET"
 
 子 Agent 返回结果后，主 Agent 按 `references/metadata-schema.md` 中的去重规则合并：DOI 为主键 → arXiv ID 次之 → 标题+年份模糊匹配。
 
+子 Agent 产生的中间结果必须保存在当前任务目录内的独立路径，并由主 Agent 纳入最终产物索引和报告。
+
 ## 信息核实
 
 学术搜索的一手来源是**论文本身**和**平台官方 API**，不是二手报道。
@@ -407,6 +424,8 @@ curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/close?target=$TARGET"
 
 多平台引用数不一致时正常——不同平台收录范围不同，Google Scholar 通常最高。
 
+引用数、检索命中数和关键状态变化应同步记录在 `trace.md` 或其他任务中间产物中，保留来源平台和观测时间。
+
 ## 站点经验
 
 操作中积累的特定网站经验，按域名存储在 `references/site-patterns/` 下。
@@ -414,6 +433,10 @@ curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/close?target=$TARGET"
 已预置经验的平台：arXiv、Semantic Scholar、Google Scholar、ACM DL、IEEE Xplore、PubMed、Papers with Code、CNKI（知网），以及 ScienceDirect、Wiley、Springer、ACS 等主要出版商访问限制。
 
 确定目标平台后，**必须**读取对应文件获取先验知识（平台特征、有效模式、已知陷阱）。经验内容标注发现日期，当作**可能有效的提示，不是保证正确的事实**——按经验操作失败时，回退通用模式，并**更新经验文件**（记录失败原因和发现日期）。操作成功后若发现了新模式或陷阱，同样主动写入。
+
+## 完成判定
+
+需要产出的任务只有在任务目录包含 `protocol.md`、`report.md`、`trace.md` 和 `manifest.json`，且关键中间结果已保存并登记后，才可报告完成。纯问答任务不适用此文件要求。
 
 ## References 索引
 
