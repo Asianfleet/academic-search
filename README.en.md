@@ -372,7 +372,11 @@ academic-search/
 │   ├── self-test.sh                  # Base local regression test (requires Chrome remote debugging)
 │   └── release-test.sh               # Pre-release regression test (concurrency / invalid target / binary response)
 └── references/
-    ├── api-cookbook.md               # Multi-platform call reference (curl examples + field mappings)
+    ├── api-cookbook/                 # Multi-platform call reference (curl examples + field mappings, grouped by platform)
+    │   ├── open-api-platforms.md
+    │   ├── semantic-scholar.md
+    │   ├── ieee-acm.md
+    │   └── google-scholar-cnki.md
     ├── metadata-schema.md            # Cross-platform unified metadata schema + dedup rules + BibTeX templates
     ├── venue-rankings.md             # CS conference/journal CCF tier reference
     ├── cdp-api.md                    # CDP Proxy HTTP API complete reference

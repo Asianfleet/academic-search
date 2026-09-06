@@ -95,7 +95,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
 - **curl**：直接调用结构化 API，返回 JSON/XML
 - **CDP**：仅 Google Scholar 必须；其他平台在 API/WebFetch 无效时作为兜底
 
-详细 API 调用模板见 `references/api-cookbook.md`。
+详细 API 调用模板见 `references/api-cookbook/` 目录，按平台分组：
+
+| API 平台 | 对应文档 |
+|---------|---------|
+| arXiv、Crossref、OpenAlex、Unpaywall、PubMed、Papers with Code | `references/api-cookbook/open-api-platforms.md` |
+| Semantic Scholar | `references/api-cookbook/semantic-scholar.md` |
+| IEEE Xplore、ACM Digital Library | `references/api-cookbook/ieee-acm.md` |
+| Google Scholar、CNKI（中国知网） | `references/api-cookbook/google-scholar-cnki.md` |
 
 ## 学科路由
 
@@ -412,7 +419,7 @@ curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/close?target=$TARGET"
 
 | 文件 | 何时加载 |
 |------|---------|
-| `references/api-cookbook.md` | 需要 API 调用示例、参数说明、响应字段映射时 |
+| `references/api-cookbook/*.md` | 需要 API 调用示例、参数说明、响应字段映射时 |
 | `references/metadata-schema.md` | 整理提取结果、多平台去重合并、生成 BibTeX 时 |
 | `references/cdp-api.md` | 需要 CDP 浏览器操作时（Google Scholar、CNKI 等） |
 | `references/disciplines/*.md` | 需要按学科选择平台、扩展 query、排序和输出字段时 |

@@ -250,7 +250,11 @@ academic-search/
 │   ├── self-test.sh            # 本地回归测试
 │   └── release-test.sh         # 发布前测试
 ├── references/
-│   ├── api-cookbook.md         # 多平台调用速查
+│   ├── api-cookbook/           # 多平台调用速查（按平台分组）
+│   │   ├── open-api-platforms.md
+│   │   ├── semantic-scholar.md
+│   │   ├── ieee-acm.md
+│   │   └── google-scholar-cnki.md
 │   ├── metadata-schema.md      # 跨平台统一元数据 schema
 │   ├── venue-rankings.md       # CS 会议/期刊 CCF 分级速查
 │   ├── cdp-api.md              # CDP Proxy HTTP API 完整参考
