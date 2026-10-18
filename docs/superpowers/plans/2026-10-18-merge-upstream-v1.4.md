@@ -64,45 +64,45 @@
 
 **Files:** 创建 `docs/superpowers/plans/2026-10-18-merge-upstream-v1.4.md`
 
-- [ ] **Step 1:** 写入本计划文档。
-- [ ] **Step 2:** 提交计划文档（中文文档，英文 commit message）。
-- [ ] **Step 3:** 推送 4 个未推送提交到 `origin/feat/usability_improve` 作为备份。
-- [ ] **Step 4:** 从 `feat/usability_improve` 创建合并分支 `merge/upstream-v1.4`。
+- [x] **Step 1:** 写入本计划文档。
+- [x] **Step 2:** 提交计划文档（commit `51b9d63`，中文文档、英文 commit message）。
+- [x] **Step 3:** 推送未推送提交到 `origin/feat/usability_improve` 作为备份（`b5fe1ae..51b9d63`）。
+- [x] **Step 4:** 创建合并分支 `merge/upstream-v1.4`。
 
 ### Task 2: 机械合并与冲突解决
 
-- [ ] **Step 1:** `git merge upstream/main`，确认冲突文件与预判一致（7 个）。
-- [ ] **Step 2:** 解决 `README.md` / `README.en.md` / `project-introduction.md`（以上游为基底，加回 Windows-Node 说明，URL 换 `Asianfleet`）。
-- [ ] **Step 3:** 解决 `references/cdp-api.md`（取上游）。
-- [ ] **Step 4:** 解决 `scripts/check-deps.sh`（取上游 + 凭据检查块前置到 `--api-only` 之前）。
-- [ ] **Step 5:** 解决 `references/api-cookbook.md` 的 modify/delete：保留上游单文件，删除 `references/api-cookbook/` 目录。
-- [ ] **Step 6:** `SKILL.md` 三路取舍，先落上游骨架，内容移植放到 Task 3。
+- [x] **Step 1:** `git merge upstream/main`，冲突文件与预判一致（7 个）。
+- [x] **Step 2:** 解决 `README.md` / `README.en.md` / `project-introduction.md`：以上游版为基底（`--theirs`），加回 Windows 直连 Node 说明，clone/install URL 换 `Asianfleet`，目录树补 `ensure-proxy.mjs` / `proxy-owner.mjs` / `browser-runtime.mjs` / `task-protocol.md`。
+- [x] **Step 3:** 解决 `references/cdp-api.md`（取上游）。
+- [x] **Step 4:** 解决 `scripts/check-deps.sh`（上游版 + 凭据检查块）。实测：`--api-only` 输出凭据后跳过浏览器准备并返回 0；假 Key 只输出变量名不输出值；非法参数返回 usage/1；端口被占用时按上游契约返回 `PROXY_PORT_IN_USE`（未启动 Chrome）。
+- [x] **Step 5:** `references/api-cookbook.md` 冲突解决为上游单文件；删除 `references/api-cookbook/` 四个拆分文件。
+- [x] **Step 6:** `SKILL.md` 以上游骨架重写，内容移植见 Task 3。
 
 ### Task 3: 本 fork 内容移植
 
-- [ ] **Step 1:** 新建 `references/task-protocol.md`（产出协议全文）。
-- [ ] **Step 2:** 把本 fork 拆分文件中的 90 行独有内容并入上游 `references/api-cookbook.md`；删除与 `site-patterns/*` 重复的浏览器流程。
-- [ ] **Step 3:** `SKILL.md` 植入：产出协议硬要求 + 指路、完成判定、前置检查、跨平台硬规则、并行分治 + S2 权限、S2 速度守则分层表述。
-- [ ] **Step 4:** 统一 S2 速率与 429 表述（含事实冲突）。
+- [x] **Step 1:** 新建 `references/task-protocol.md`（产出协议全文：任务目录、四件主产物、`trace.md` 列定义与禁记内容、中间产物分类、子 Agent 交接、完成判定）。
+- [x] **Step 2:** 本 fork 独有内容并入 `references/api-cookbook.md`（S2 速率守则、ID 类型表、`/paper/search/bulk`、`/snippet/search`、作者 batch、字段映射与引用/被引结构），CNKI 的 `crossids` 代码表与字段映射并入 `references/site-patterns/cnki.net.md`；与 `site-patterns/*` 重复的 Google Scholar/CNKI 浏览器流程不再重复。
+- [x] **Step 3:** `SKILL.md` 植入：任务产出协议（硬要求 + 指路）、完成判定、前置检查（含 `--api-only` 与无 Bash 环境的 Node 路径）、跨平台硬规则、并行分治 + S2 权限、S2 速率纪律指针。
+- [x] **Step 4:** 统一 S2 表述：按官方 API 产品页采用“未认证共享全局池 1000 req/s、带 Key 1 RPS”，替换上游旧值“无 Key 约 100 req/5min”；429 预防纪律与有界恢复预算分层（恢复不得立即重试）。
 
 ### Task 4: D5 清理（删除 PowerShell 实现）
 
-- [ ] **Step 1:** 删除 `scripts/check-deps.ps1`、`scripts/check-deps-self-test.ps1`。
-- [ ] **Step 2:** 清除 `README*.md`、`SKILL.md`、`project-introduction.md`、`references/*` 中所有 `check-deps.ps1` 提法，改为 Node 直连说明。
-- [ ] **Step 3:** 保留 `docs/superpowers/plans/2026-05-08-check-deps-powershell.md`（历史记录，按 D6）。
+- [x] **Step 1:** 删除 `scripts/check-deps.ps1`、`scripts/check-deps-self-test.ps1`。
+- [x] **Step 2:** 清除全部 `check-deps.ps1` 提法（全树 grep 为 0），改为 Node 直连说明。
+- [x] **Step 3:** 保留 `docs/superpowers/plans/2026-05-08-check-deps-powershell.md`（按 D6）。
 
 ### Task 5: 一致性与版本号
 
-- [ ] **Step 1:** 版本号改 `1.4.0+asianfleet.1`（`SKILL.md`、`agents/openai.yaml`）。
-- [ ] **Step 2:** 全树扫描残留：`3456`、`chrome://inspect`、`api-cookbook/`、`check-deps.ps1`。
-- [ ] **Step 3:** 核对 `SKILL.md` frontmatter 仍为单行 `description`。
+- [x] **Step 1:** `SKILL.md` 版本号改 `1.4.0+asianfleet.1`。`agents/openai.yaml` 不含 version 字段（上游文件仅有 interface 三项），无需修改。
+- [x] **Step 2:** 全树扫描：无 `chrome://inspect` 残留；`3456` 仅剩上游的端口迁移说明与无关示例数字；无 `api-cookbook/`、无 `check-deps.ps1` 残留。
+- [x] **Step 3:** `SKILL.md` frontmatter 仍为单行 `description`（行内 `': '` 仅 1 处），文件末尾无多余空格。
 
 ### Task 6: 验证
 
-- [ ] **Step 1:** `make test-offline`。
-- [ ] **Step 2:** `make test`（如需要浏览器则记录实际执行范围）。
-- [ ] **Step 3:** Windows 侧验证 `node scripts/ensure-proxy.mjs config` 与 `bash scripts/check-deps.sh --api-only` 等价路径。
-- [ ] **Step 4:** 确认最终 diff 只含本次合并相关改动。
+- [x] **Step 1:** `make` 在本机不可用（command not found），改直接运行等价命令：`node --test scripts/*.test.mjs` + `bash scripts/oa-pdf-download-self-test.sh`（后者 PASS）。
+- [x] **Step 2:** 本机 Windows 下 node 测试 123 passed / 129 failed；同一套测试在 `upstream/main` 的干净导出中同样是 123 / 129，且失败用例集合完全一致——失败是上游测试的 POSIX 假设（路径分隔符、进程核验）导致，与本次合并无关。未运行 `make test-release`（需本机 Chrome 与专用 profile）。
+- [x] **Step 3:** Windows 侧验证：`node scripts/ensure-proxy.mjs` 路径由 `check-deps.sh` 完整走通（凭据 → node 版本门 → 代理归属核验），未启动 Chrome。
+- [x] **Step 4:** `git diff --stat upstream/main` 仅列出本 fork 的 10 个文件（+598/−26）与新增任务协议文件，无测试或运行时脚本改动。
 
 ## 验证边界
 

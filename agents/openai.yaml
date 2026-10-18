@@ -1,4 +1,4 @@
 interface:
   display_name: "Academic Search"
-  short_description: "Search multidisciplinary papers and extract metadata"
-  default_prompt: "Use $academic-search to search papers across disciplines, compare sources, check open-access status, and extract structured metadata."
+  short_description: "Search and validate papers with traceable evidence"
+  default_prompt: "Use $academic-search to search papers across disciplines, compare sources, validate or deduplicate scholarly records, check open-access evidence, and extract structured metadata with source and verification status."

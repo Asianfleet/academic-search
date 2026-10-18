@@ -35,7 +35,7 @@ Academic-Search 的目标是把这些经验转化为可执行的 Skill 指令和
 - PubMed
 - Papers with Code
 
-对于没有可靠公开 API 或反爬较强的平台，例如 Google Scholar、CNKI，项目使用 CDP Proxy 直连用户本机 Chrome，复用用户已有登录态，并在独立后台 tab 中完成访问。
+对于需要浏览器的平台，例如 Google Scholar、CNKI，项目默认自动启动本机 Chrome 的专用持久 profile，并在任务自己的 tab 中完成访问。网站首次登录在专用 profile 中完成，不复制日常 Chrome 登录态；也可通过显式端点连接已运行的浏览器。配置见 [CDP API](references/cdp-api.md)。
 
 核心原则是：能用 API 就不打开浏览器；必须浏览器时才使用 CDP。
 
@@ -170,28 +170,31 @@ Academic-Search 关心的对象不是网页，而是论文和论文元数据。�
 ```text
 academic-search/
 ├── Makefile                    # 标准测试入口
-├── SKILL.md                    # 主 Skill 指令：搜索哲学、平台矩阵、学科路由、执行策略
+├── SKILL.md                    # 主 Skill 指令：任务协议、路由与硬要求
 ├── README.md                   # 中文说明
 ├── README.en.md                # 英文说明
 ├── wechat-promo.md             # 推广介绍文案
 ├── scripts/
-│   ├── cdp-proxy.mjs           # CDP Proxy，直连用户 Chrome
-│   ├── check-deps.sh           # macOS/Linux 环境检查 + 自动启动 Proxy
-│   ├── check-deps.ps1           # Windows PowerShell 环境检查 + 自动启动 Proxy
-│   ├── check-deps-self-test.ps1 # PowerShell 版本回归测试
+│   ├── cdp-proxy.mjs           # CDP Proxy，专用 Chrome / 显式端点
+│   ├── ensure-proxy.mjs         # 代理就绪与进程归属核对
+│   ├── proxy-owner.mjs          # 代理进程身份核验
+│   ├── browser-runtime.mjs      # 浏览器配置与启动参数
+│   ├── browser-page.mjs         # 网页正文提取与元素可操作性表达式
+│   ├── academic-records.mjs     # 学术记录校验与保守去重 CLI
+│   ├── check-deps.sh           # 环境与凭据检查 + 自动启动 Proxy
 │   ├── oa-pdf-download.mjs     # 开放 PDF manifest 生成与下载
 │   ├── oa-pdf-download-self-test.sh # 开放 PDF 下载 helper 回归测试
 │   ├── self-test.sh            # 本地回归测试
 │   └── release-test.sh         # 发布前测试
 ├── references/
-│   ├── api-cookbook/           # 多平台 API 调用模板（按平台分组）
-│   │   ├── open-api-platforms.md
-│   │   ├── semantic-scholar.md
-│   │   ├── ieee-acm.md
-│   │   └── google-scholar-cnki.md
+│   ├── api-cookbook.md         # 多平台 API 调用模板
+│   ├── task-protocol.md        # 任务目录、产出协议与审计轨迹
 │   ├── metadata-schema.md      # 统一论文元数据 schema
+│   ├── academic-records.md     # 记录校验、去重与结果解释
 │   ├── venue-rankings.md       # CS 会议 / 期刊 CCF 分级
 │   ├── cdp-api.md              # CDP Proxy API 说明
+│   ├── browser-workflow.md     # 页面观察、条件等待与结果核验
+│   ├── full-text-workflow.md   # OA 证据、文件验证与下载
 │   ├── disciplines/            # 多学科学科 profile
 │   ├── rankings/               # 学科评价和证据等级
 │   ├── workflows/              # 系统综述等研究工作流
@@ -227,7 +230,7 @@ Academic-Search 最大的不同在于，它不是把搜索引擎包装成命令�
 
 - 它不是通用论文下载器；只支持合法开放 PDF 的 manifest 生成和可选下载，不承诺获取所有 PDF。
 - 它只处理合法开放访问全文，不绕过付费墙。
-- Google Scholar、CNKI 等平台依赖 Chrome 远程调试和用户登录态。
+- Google Scholar、CNKI 等平台使用专用 Chrome 或显式指定的已运行端点；网站登录和访问权限以该 profile 的当前状态为准。
 - Semantic Scholar 高频使用建议配置 API Key，否则容易遇到 429。
 - 学科路由和站点经验仍需要持续补充，尤其是非 CS 学科和商业出版商平台。
 

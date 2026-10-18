@@ -9,46 +9,42 @@
   </tr>
 </table>
 
-<p align="center">Academic search and paper metadata extraction for Claude Code</p>
+<p align="center">Academic search and paper metadata extraction for Codex, Claude Code, and compatible skill hosts</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v1.2.0-0f766e" alt="version" />
+  <img src="https://img.shields.io/badge/version-v1.4.0-0f766e" alt="version" />
   <img src="https://img.shields.io/badge/license-MIT-1f2937" alt="license" />
   <img src="https://img.shields.io/badge/test-make%20test%20%7C%20make%20test--release-2563eb" alt="test" />
 </p>
 
 <p align="center">
-  <a href="https://github.com/Mingyue-Cheng/academic-search/stargazers">
-    <img src="https://img.shields.io/github/stars/Mingyue-Cheng/academic-search?style=social" alt="GitHub stars" />
+  <a href="https://github.com/ustc-ai4science/academic-search/stargazers">
+    <img src="https://img.shields.io/github/stars/ustc-ai4science/academic-search?style=social" alt="GitHub stars" />
   </a>
-  <a href="https://github.com/Mingyue-Cheng/academic-search/commits/main">
-    <img src="https://img.shields.io/github/last-commit/Mingyue-Cheng/academic-search" alt="last commit" />
+  <a href="https://github.com/ustc-ai4science/academic-search/commits/main">
+    <img src="https://img.shields.io/github/last-commit/ustc-ai4science/academic-search" alt="last commit" />
   </a>
-  <a href="https://github.com/Mingyue-Cheng/academic-search">
+  <a href="https://github.com/ustc-ai4science/academic-search">
     <img src="https://img.shields.io/badge/repo-GitHub-111827?logo=github" alt="repo link" />
   </a>
 </p>
 
 <p align="center"><a href="README.md">简体中文</a> | English</p>
 
-academic-search skill brings academic-oriented retrieval strategy, cross-platform metadata normalization, and browser automation support to Claude Code. It is designed for paper discovery, author analysis, citation lookup, open-access PDF retrieval, BibTeX export, and structured literature comparison across multiple sources.
+academic-search skill brings academic-oriented retrieval strategy, cross-platform metadata normalization, and browser automation support to compatible skill hosts. It is designed for paper discovery, author analysis, citation lookup, open-access PDF retrieval, BibTeX export, and structured literature comparison across multiple sources.
 
 Compared with generic WebSearch and WebFetch, this skill focuses on three things: **platform selection for academic tasks**, **structured outputs**, and **reusable site-specific operational knowledge**.
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/Mingyue-Cheng/academic-search ~/.claude/skills/academic-search
-
-# macOS / Linux / Bash
-bash ~/.claude/skills/academic-search/scripts/check-deps.sh
+git clone https://github.com/Asianfleet/academic-search academic-search
+cd academic-search
+# Only for the bundled CDP browser mode; API retrieval does not need Chrome
+bash scripts/check-deps.sh
 ```
 
-Windows PowerShell:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File "$HOME\.claude\skills\academic-search\scripts\check-deps.ps1"
-```
+Without Bash (for example on Windows), use Node directly: API-only tasks need no preparation script, and browser mode runs `node scripts/ensure-proxy.mjs`.
 
 Once installed, you can immediately ask Claude Code to perform an academic search task, for example:
 
@@ -57,6 +53,14 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 ```
 
 ## News
+
+[v1.4 release notes](docs/release-1.4.md) · [v1.3.1 browser isolation notes](docs/release-1.3.1.md) · [v1.3 release notes](docs/release-1.3.md)
+
+- `2026-09-05` `v1.4.0`: structured page reading, safer form actions with explicit evidence, and executable academic-record validation and conservative deduplication
+
+- `2026-09-05` `v1.3.1`: automatically managed Chrome profile, dynamic debugging port, explicit attach-only endpoints, and proxy identity checks
+
+- `2026-09-05` Released `v1.3.0`: bounded browser conditions, unique action targets, PDF format validation and response provenance, scoped workflows and experience status
 
 - `2026-05-08` Added an open-access PDF manifest and batch download helper: only handles legal `open_pdf` sources and does not bypass paywalls
 - `2026-05-01` Added multidisciplinary guidance: discipline routing, open-access PDF status, Crossref/OpenAlex/Unpaywall foundations, and publisher access-limit handling
@@ -73,8 +77,9 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 - [Requirements](#requirements)
 - [Testing](#testing)
 - [Usage Examples](#usage-examples)
+- [Academic Record Validation and Deduplication](#academic-record-validation-and-deduplication)
 - [Open-Access PDF Download Manifest](#open-access-pdf-download-manifest)
-- [Relationship With scansci-pdf](#relationship-with-scansci-pdf)
+- [Verification Boundary](#verification-boundary)
 - [Multidisciplinary Usage](#multidisciplinary-usage)
 - [Platforms and Access Strategy](#platforms-and-access-strategy)
 - [CDP Proxy API](#cdp-proxy-api)
@@ -105,19 +110,22 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 | Cross-disciplinary coverage | arXiv / Semantic Scholar / Crossref / OpenAlex / Unpaywall / Google Scholar / ACM DL / IEEE Xplore / PubMed / Papers with Code / CNKI |
 | API-first strategy | Public APIs first — no browser required when a reliable API exists |
 | Discipline routing | Selects sources, query expansion, ranking, and output fields for CS/AI, biomedicine, physics/math, chemistry/materials, social science/economics, and humanities/law |
-| CDP browser mode | Google Scholar and other anti-bot platforms via direct Chrome connection, inheriting your login session |
-| Two-pass search | First pass outputs a lightweight summary table; second pass deep-fetches full metadata only for confirmed papers. When user specifies count ("top N"), outputs directly without waiting |
-| Frontier-first ranking | **Recency first** (papers from last 6 months labeled `[new]` and surfaced to top) → citation count → CCF tier (as reference only) |
-| Query expansion | Automatically expands to 2-3 complementary queries (synonyms / sub-concepts / abbreviations), improving recall by 30-50% |
+| CDP browser mode | Automatically prepare a separate persistent Chrome profile, or attach to an explicitly configured running endpoint; API-only tasks do not launch Chrome |
+| Two-pass search | Screen candidates first, then complete the requested fields. An existing request for full metadata authorizes both passes without another confirmation |
+| Frontier-first ranking | Relevance and inclusion criteria first; use recency, citations and discipline-specific evaluation as task-dependent signals |
+| Query expansion | Expands complementary queries and deduplicates their results; no fixed recall improvement is assumed |
 | Venue tier labels | CS conferences/journals annotated with CCF ranking (A/B/C); ICLR labeled separately |
 | Result filtering | Filter by recency / citation count / venue tier / open PDF / code availability |
 | Structured metadata | Unified schema across all platforms; DOI as primary dedup key |
-| Open-access PDF retrieval | ArXiv ID present → construct link directly; S2 / Unpaywall / repository links as legal open-access fallbacks |
+| Record validation and deduplication | Executable JSON validation plus conservative grouping by exact DOI, base arXiv ID, or PMID; only exactly equal normalized titles become review candidates |
+| Structured page reading | `/readPage` returns bounded visible text, headings, links, raw `citation_*` page declarations, extraction source, and independent truncation flags |
+| Reliable browser actions | Unique actionable targets, native-value fill, synchronous exact-target text insertion, real named-key dispatch, and explicit `status:"dispatched"` / `outcome_verified:false` evidence |
+| Open-access PDF retrieval | An arXiv ID yields a candidate URL, not proof of accessibility; retain source evidence and verify downloaded bytes separately |
 | Open-access PDF download | Generate a download manifest and download only records marked `open_pdf`; does not bypass paywalls and does not use Sci-Hub/WebVPN/Tor |
-| Full-text access status | Records `open_pdf`, `needs_institution`, `no_open_pdf`, `anti_bot_blocked`, `html_not_pdf`, or `unknown` instead of treating every publisher block as a generic failure |
+| Full-text access status | Records `open_pdf`, `login_required`, `needs_institution`, `no_open_pdf`, `anti_bot_blocked`, `html_not_pdf`, or `unknown` instead of treating every publisher block as a generic failure |
 | Cross-disciplinary metadata | Crossref / OpenAlex / Unpaywall supplement DOI, venue, institution, citation, and open-access status across fields |
 | BibTeX export | Platform-native export + field-assembly fallback |
-| Code availability | Papers with Code API auto-fills code column for ML papers |
+| Code availability | Paper/author official links first; validate candidates from third-party indexes |
 | Citation graph | S2 citations/references API; Google Scholar citation counts as supplement |
 | Failure signal handling | 429 / timeout / empty results each have explicit direction adjustments — no blind retries |
 | Parallel sub-agents | Independent targets dispatched to parallel sub-agents sharing one Proxy, tab-level isolation |
@@ -127,7 +135,7 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 <summary>v1.2.0 Changes</summary>
 
 - **Frontier-first ranking** — Recency as top priority: papers from last 6 months labeled `[new]` and surfaced first; citation count second; CCF tier as reference only
-- **Query expansion strategy** — Auto-expands to synonyms / sub-concepts / abbreviations; multi-query dedup improves recall by 30-50%
+- **Query expansion strategy** — Auto-expands to synonyms / sub-concepts / abbreviations; merge and deduplicate complementary queries without assuming a fixed recall gain
 - **Open-access PDF link** — ArXiv ID present → construct link directly, bypassing unreliable `openAccessPdf` field
 - **Intent-aware two-pass** — When user specifies "top N papers", outputs directly without stopping to confirm
 - **Failure signal table** — 429 / timeout / empty results each map to explicit direction adjustments
@@ -139,7 +147,7 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 <details>
 <summary>v1.1.0 Changes</summary>
 
-- **Two-pass search strategy** — Lightweight summary table first; deep fetch only after core papers are confirmed
+- **Two-pass search strategy** — Lightweight summary table first; screen first and complete fields already requested by the user
 - **Venue rankings reference** — New `references/venue-rankings.md` covering AI/ML/CV/NLP/Data Mining/IR/Systems/SE CCF tiers
 - **Explicit filtering capability** — New filtering section with 5 dimensions and output template
 
@@ -149,16 +157,18 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 
 ## Installation
 
+Choose the directory for your host. Codex commonly uses `~/.codex/skills/academic-search`; the examples below use Claude Code. Run bundled scripts relative to the actual skill root.
+
 **Option 1: Let Claude install it automatically**
 
 ```
-Install this skill for me: https://github.com/Mingyue-Cheng/academic-search
+Install this skill for me: https://github.com/Asianfleet/academic-search
 ```
 
 **Option 2: Manual**
 
 ```bash
-git clone https://github.com/Mingyue-Cheng/academic-search ~/.claude/skills/academic-search
+git clone https://github.com/Asianfleet/academic-search ~/.claude/skills/academic-search
 ```
 
 **Option 3: Local symlink (for development)**
@@ -170,28 +180,36 @@ ln -sfn "$(pwd)" ~/.claude/skills/academic-search
 
 ## Requirements
 
-arXiv, Semantic Scholar, PubMed, and other API-based platforms work out of the box with no setup.
+API credentials and budgets depend on the current provider and account. API-only retrieval does not require Chrome. Bundled scripts require Node.js 22+.
 
-CDP mode requires **Node.js 22+** and Chrome remote debugging:
+**Default-port migration:** v1.3.1 changes the Proxy port from 3456 to 3457. Update custom client base URLs; do not treat another tool on the old port as the new proxy, and do not stop it as part of this migration.
 
-1. Open `chrome://inspect/#remote-debugging` in Chrome's address bar
-2. Check **Allow remote debugging for this browser instance** (browser restart may be required)
-
-Environment check (the agent runs this automatically — no need to run manually):
-
-macOS / Linux / Bash:
+Bundled CDP mode uses an installed Chrome executable. From the actual skill directory:
 
 ```bash
-bash ~/.claude/skills/academic-search/scripts/check-deps.sh
+bash scripts/check-deps.sh
 ```
 
-Windows PowerShell:
+Add `--api-only` for API-only tasks: it prints the credential and base checks (environment variable names only, never key values) and skips browser preparation. Without Bash (for example on Windows), use Node directly: API-only tasks need no preparation script, and browser mode runs `node scripts/ensure-proxy.mjs`. at `~/.local/share/academic-search/chrome-profile`. Chrome selects a dynamic debugging port bound to loopback. The runtime reads only this profile's `DevToolsActivePort`; it does not scan or connect to your everyday Chrome. Sign in to websites in the dedicated window when first needed. Existing everyday-browser cookies and logins are not copied.
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File "$HOME\.claude\skills\academic-search\scripts\check-deps.ps1"
+| Setting | Purpose |
+|---|---|
+| `ACADEMIC_CHROME_PROFILE` | Override the dedicated profile directory |
+| `ACADEMIC_CHROME_EXECUTABLE` | Select the installed Chrome executable |
+| `ACADEMIC_CHROME_ENDPOINT` | Attach only to this already-running browser endpoint; no launch or fallback |
+| `CDP_PROXY_PORT` | Proxy HTTP port, default 3457; this is not the Chrome debugging port |
+
+For example, reuse WebUse only when it is already running at the specified endpoint:
+
+```bash
+ACADEMIC_CHROME_ENDPOINT=http://127.0.0.1:9334 bash scripts/check-deps.sh
 ```
+
+An unavailable endpoint fails explicitly; this does not start WebUse. Website logins, CAPTCHA checks, and session expiry can still occur. `check-deps` reuses only a proxy whose recorded process identity can be verified; unknown port occupancy is reported rather than adopted or terminated. See [CDP API](references/cdp-api.md) for configuration and diagnostics.
 
 ## Testing
+
+Run `make test-offline` for local fixture tests without Chrome. `make test` and `make test-release` also exercise an installed Chrome or an explicitly configured running endpoint, using task-owned tabs and an isolated proxy. They do not depend on remote debugging being enabled for your everyday Chrome.
 
 Local regression test:
 
@@ -207,7 +225,7 @@ cd academic-search
 make test-release
 ```
 
-If `3456` or the default test port `4568` is already occupied, override it explicitly:
+If the proxy port `3457` or the default test port `4568` is already occupied, select another port explicitly:
 
 ```bash
 cd academic-search
@@ -245,6 +263,26 @@ Check Google Scholar for the citation count of "Attention Is All You Need"
 Search for time series agent papers from the last two years and generate an open-access PDF download manifest
 ```
 
+### Academic Record Validation and Deduplication
+
+Validate machine-readable results for required fields, identifier formats, citation provenance, and field-level sources:
+
+```bash
+node scripts/academic-records.mjs validate \
+  --input results.json \
+  --output validation.json
+```
+
+Then group records conservatively by normalized DOI, base arXiv ID, or PMID:
+
+```bash
+node scripts/academic-records.mjs dedupe \
+  --input results.json \
+  --output deduplicated.json
+```
+
+The output preserves conflicts, source indices, provenance, and arXiv versions. Titles that become exactly equal after NFKC, case, punctuation, and whitespace normalization stay separate in `possible_duplicates` when they have no shared exact identifier. Validation warnings expose missing evidence without inventing it; validation errors are written to the report and produce a nonzero exit status. See [academic records](references/academic-records.md).
+
 ### Open-Access PDF Download Manifest
 
 Academic-Search can turn search results into an open-access PDF download manifest:
@@ -255,7 +293,7 @@ node scripts/oa-pdf-download.mjs \
   --manifest download-manifest.json
 ```
 
-After confirmation, download only records marked `open_pdf`:
+When downloads are already authorized, download source-supported `open_pdf` records directly; verify the actual bytes during download:
 
 ```bash
 node scripts/oa-pdf-download.mjs \
@@ -273,12 +311,13 @@ This feature handles legal open-access PDFs only. It does not use Sci-Hub, LibGe
 | `download_error` | Skip or failure reason |
 | `local_pdf_path` | Local downloaded PDF path, filled only when `downloaded` |
 
-### Relationship With scansci-pdf
+### Verification Boundary
 
-Academic-Search handles discovery, filtering, metadata, open-access status, and open-access PDF manifests.
-If the goal is to maximize PDF acquisition, especially with WebVPN, institutional proxy, source racing, or non-open sources, hand the task off to a dedicated paper-acquisition tool such as scansci-pdf.
+The downloader checks the PDF signature, EOF and basic xref structure, then uses optional Poppler `pdfinfo` to validate parsing. If the parser is unavailable, it explicitly reports `structure_checked_parser_unavailable`. Strict checks can reject recoverable PDFs. Neither a successful transfer nor a parseable PDF proves that the file belongs to the intended paper.
 
----
+Manifest fields include `final_url`, `checked_at`, `byte_length`, `sha256`, `http_status`, `retry_after`, and `download_error_code`. `pdf_verification_status` is `unverified`, `parser_validated`, `structure_checked_parser_unavailable`, `not_pdf`, or `invalid_pdf`. The downloader always returns `paper_identity_status=unverified`.
+
+Use `--timeout-ms 30000` to bound network requests and `--pdfinfo-path` to select a parser. Parser execution is bounded by the smaller of the request timeout and 5 seconds. The helper records HTTP 429 and Retry-After without retrying indefinitely. See [metadata schema](references/metadata-schema.md) and [full-text workflow](references/full-text-workflow.md).
 
 ## Multidisciplinary Usage
 
@@ -299,7 +338,7 @@ See [Multidisciplinary Improvement Analysis](docs/multidisciplinary-improvement-
 
 ## Platforms and Access Strategy
 
-| Platform | Access Method | Requires Chrome Debugging |
+| Platform | Access Method | Browser Needed |
 |----------|--------------|:------------------------:|
 | arXiv | REST API | No |
 | Semantic Scholar | REST API | No |
@@ -307,12 +346,12 @@ See [Multidisciplinary Improvement Analysis](docs/multidisciplinary-improvement-
 | OpenAlex | REST API | No |
 | Unpaywall | REST API | No |
 | PubMed | NCBI E-utilities | No |
-| Papers with Code | REST API | No |
+| Papers with Code | Historical interface reference; verify availability before use | No |
 | ACM DL | WebFetch + Jina | No |
 | IEEE Xplore | WebFetch / Jina / Official API | No |
 | ScienceDirect / Wiley / Springer / ACS | Open-access status check + institution-access notice | No |
-| Google Scholar | CDP browser | **Yes** |
-| CNKI | CDP browser | **Yes** |
+| Google Scholar | CDP with automatically managed Chrome | **Yes** |
+| CNKI | CDP with automatically managed Chrome | **Yes** |
 
 Full-text retrieval only uses legal open-access routes. A reachable publisher page does not mean that the PDF is downloadable; institutional entitlements, Cloudflare checks, CAPTCHA pages, or HTML responses from PDF routes are reported as access status rather than bypassed.
 
@@ -320,31 +359,23 @@ Full-text retrieval only uses legal open-access routes. A reachable publisher pa
 
 ## CDP Proxy API
 
-The Proxy connects to Chrome via WebSocket (compatible with the `chrome://inspect` method — no command-line flags needed) and exposes an HTTP API:
+`POST /wait` waits for named result, empty, or blocked conditions within a deadline. `/readPage` provides bounded structured reading. `click`, `clickAt`, `fill`, `insertText`, and `setFiles` require unique selectors. `insertText` reports `keyboard_semantics:false`; use `/press` for real Enter, Backspace, and other supported key behavior. Navigation includes `load_status`. Browser actions return `status:"dispatched"` and `outcome_verified:false`; page load or action dispatch alone does not establish task success. See the [browser workflow](references/browser-workflow.md).
 
-The agent manages the Proxy lifecycle automatically — no manual startup needed.
-
-macOS / Linux / Bash:
+The Proxy connects via WebSocket to managed Chrome or an explicitly selected running endpoint. `/health` reads current state, version and browser configuration without initiating a connection. It can report `connected:false` while the initial background connection is pending.
 
 ```bash
-bash ~/.claude/skills/academic-search/scripts/check-deps.sh
-```
+# The agent manages the Proxy lifecycle automatically — no manual startup needed
+bash scripts/check-deps.sh
 
-Windows PowerShell:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File "$HOME\.claude\skills\academic-search\scripts\check-deps.ps1"
-```
-
-Page operations:
-
-```bash
-curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/new?url=https://scholar.google.com"           # Open new tab
-curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/eval?target=ID" -d 'document.title'  # Execute JS
-curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/click?target=ID" -d 'button.submit'  # Click element
-curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/screenshot?target=ID&file=/tmp/shot.png"      # Screenshot
-curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/scroll?target=ID&direction=bottom"            # Scroll
-curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/close?target=ID"                              # Close tab
+# Page operations
+curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/new?url=https://scholar.google.com"           # Open new tab
+curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/eval?target=ID" -d 'document.title'  # Execute JS
+curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/readPage?target=ID" -H 'Content-Type: application/json' -d '{}' # Read page
+curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/fill?target=ID" -H 'Content-Type: application/json' -d '{"selector":"input[name=q]","text":"query"}' # Fill input
+curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/click?target=ID" -d 'button.submit'  # Click element
+curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/screenshot?target=ID&file=/tmp/shot.png"      # Screenshot
+curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/scroll?target=ID&direction=bottom"            # Scroll
+curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/close?target=ID"                              # Close tab
 ```
 
 See `references/cdp-api.md` for the full API reference.
@@ -356,30 +387,33 @@ See `references/cdp-api.md` for the full API reference.
 ```
 academic-search/
 ├── Makefile                          # Standard test entry (make test / make test-release)
-├── SKILL.md                          # Main instruction (search philosophy + platform matrix + capabilities)
+├── SKILL.md                          # Main instruction (task protocol, routing, hard requirements)
 ├── README.md                         # Chinese README
 ├── README.en.md                      # English README (this file)
 ├── docs/
 │   ├── skill-usage-comparison.md
 │   └── multidisciplinary-improvement-analysis.md
 ├── scripts/
-│   ├── cdp-proxy.mjs                 # CDP Proxy HTTP server (connects to user's Chrome)
-│   ├── check-deps.sh                 # macOS/Linux environment check + auto-start Proxy
-│   ├── check-deps.ps1                # Windows PowerShell environment check + auto-start Proxy
-│   ├── check-deps-self-test.ps1      # PowerShell regression test
+│   ├── cdp-proxy.mjs                 # CDP Proxy HTTP server (managed Chrome / explicit endpoint)
+│   ├── ensure-proxy.mjs               # Proxy readiness and process-ownership checks
+│   ├── proxy-owner.mjs                # Proxy process identity verification
+│   ├── browser-runtime.mjs            # Browser configuration and launch arguments
+│   ├── browser-page.mjs               # Page extraction and element-actionability expressions
+│   ├── academic-records.mjs           # Record validation and conservative deduplication CLI
+│   ├── check-deps.sh                 # Environment and credential checks + auto-start Proxy
 │   ├── oa-pdf-download.mjs           # OA PDF manifest generation and open PDF download
 │   ├── oa-pdf-download-self-test.sh  # Regression test for OA PDF download helper
-│   ├── self-test.sh                  # Base local regression test (requires Chrome remote debugging)
+│   ├── self-test.sh                  # Base regression test (installed Chrome / explicit endpoint)
 │   └── release-test.sh               # Pre-release regression test (concurrency / invalid target / binary response)
 └── references/
-    ├── api-cookbook/                 # Multi-platform call reference (curl examples + field mappings, grouped by platform)
-    │   ├── open-api-platforms.md
-    │   ├── semantic-scholar.md
-    │   ├── ieee-acm.md
-    │   └── google-scholar-cnki.md
+    ├── api-cookbook.md               # Multi-platform call reference (curl examples + field mappings)
+    ├── task-protocol.md              # Task directory, artifact protocol and audit trace
+    ├── academic-records.md            # Record validation, deduplication, and report interpretation
     ├── metadata-schema.md            # Cross-platform unified metadata schema + dedup rules + BibTeX templates
     ├── venue-rankings.md             # CS conference/journal CCF tier reference
     ├── cdp-api.md                    # CDP Proxy HTTP API complete reference
+    ├── browser-workflow.md           # Observation, condition waits and result verification
+    ├── full-text-workflow.md         # OA evidence, file validation and download workflow
     ├── disciplines/                  # Discipline routing and query expansion profiles
     ├── rankings/                     # Non-CS evidence/source ranking references
     ├── workflows/                    # Systematic review and literature workflow templates
@@ -404,14 +438,13 @@ academic-search/
 
 > Skill = philosophy + technical facts, not an operations manual. Explain the tradeoffs and let the AI decide — don't do its reasoning for it.
 
-- **The bottleneck is filtering, not searching**: Output a lightweight summary table first; let the user identify core papers before deep-fetching — avoids redundant full metadata pulls
-- **Frontier-first ranking**: Recency → citations → CCF tier. Papers from the last 6 months are labeled `[new]` and surfaced to the top — new papers in active research areas have naturally low citation counts but represent the latest advances
-- **API-first**: Never simulate a browser for platforms that offer a public API — faster, more stable, no anti-bot exposure
-- **CDP is the last resort, not the default**: Only used when no reliable API exists (Google Scholar)
-- **Structured output**: All results converted to a unified schema, DOI as dedup key, directly exportable as BibTeX
+- **Screen before enriching**: Select relevant candidates, then complete the fields and downloads already requested; the internal two-pass strategy does not require another approval.
+- **Task-dependent ranking**: Relevance, inclusion criteria and disciplinary standards lead. Recency and source-specific citation counts are supporting signals.
+- **API-first**: Prefer structured sources when they satisfy the request; use current browser capabilities for missing fields, dynamic pages or explicit user choices.
+- **Traceable output**: Preserve field sources, ambiguous identity matches, separate citation counts and file verification status.
+- **Scoped experience**: Read relevant site operations only; historical notes remain unverified until exercised and updates follow the host's authorization rules.
 
-📋 **Case Study**: [Skill vs. No-Skill Search Comparison](docs/skill-usage-comparison.md) — A controlled experiment searching "Time Series Agent" papers with and without the skill, documenting execution paths, result differences, and key takeaways.
-- **Site knowledge reuse**: platform and publisher operation experience ships pre-seeded and can be updated across sessions
+📋 **Historical Case Study**: [Skill vs. No-Skill Search Comparison](docs/skill-usage-comparison.md) records two earlier search runs. It does not establish a controlled performance gain or the current host's skill invocation behavior.
 
 ---
 

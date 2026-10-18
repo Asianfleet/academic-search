@@ -3,12 +3,12 @@
   <strong style="font-size:2em; vertical-align:middle;">Academic-Search Skill</strong>
 </p>
 
-<p align="center">想要在 Claude Code 里直接调研顶刊论文？Academic-Search Skill 帮你实现。</p>
+<p align="center">面向 Codex、Claude Code 等 Skill 宿主的学术检索与元数据提取。</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v1.2.0-0f766e" />
+  <img src="https://img.shields.io/badge/version-v1.4.0-0f766e" />
   <img src="https://img.shields.io/badge/license-MIT-1f2937" />
-  <img src="https://img.shields.io/github/stars/Mingyue-Cheng/academic-search?style=social" />
+  <img src="https://img.shields.io/github/stars/ustc-ai4science/academic-search?style=social" />
 </p>
 
 <p align="center">📈 <a href="https://www.star-history.com/?repos=ustc-ai4science%2Facademic-search&type=date&legend=top-left">Star History</a></p>
@@ -18,6 +18,14 @@
 ---
 
 ## News
+
+[v1.4 更新说明](docs/release-1.4.md) · [v1.3.1 浏览器隔离说明](docs/release-1.3.1.md) · [v1.3 更新说明](docs/release-1.3.md)
+
+- `2026-09-05` `v1.4.0`：新增结构化网页正文读取、可靠表单动作与明确动作证据；新增可执行的论文记录校验和保守去重
+
+- `2026-09-05` `v1.3.1`：默认自动启动专用 Chrome profile，动态分配调试端口；显式端点仅连接，代理复用核对进程身份
+
+- `2026-09-05` 发布 `v1.3.0`：浏览器条件等待与唯一目标检查、PDF 格式核验与来源记录、按需工作流和经验失效管理
 
 - `2026-05-08` 新增 OA PDF 下载 manifest 与开放 PDF 批量下载 helper：只处理 `open_pdf` 合法来源，不绕过付费墙
 - `2026-05-01` 新增多学科使用指引：学科路由、开放获取 PDF 状态、Crossref/OpenAlex/Unpaywall 跨学科底座与主要出版商访问限制
@@ -31,27 +39,23 @@
 🚀 **覆盖全**：arXiv、Semantic Scholar、OpenAlex、Crossref、Unpaywall、Google Scholar、CNKI... 多学科平台协同检索。
 📊 **功能强**：论文检索、引用追踪、BibTeX 导出、多源去重，一气呵成。  
 📑 **获取稳**：开放获取 PDF 级联获取，明确标注机构权限和反爬限制。  
-🧾 **下载清楚**：先生成 manifest，再按确认下载开放 PDF，保留跳过、失败和非 PDF 状态。
-🎯 **策略精**：时效性优先排序，自带 CCF 等级标注，只看最值得看的顶会干货。
+🧾 **下载清楚**：生成 manifest，并在用户已授权下载时直接完成；保留响应、格式验证与失败原因。
+🎯 **策略精**：按任务相关性和学科标准筛选，前沿与经典文献分别考虑时效性。
 
 > **Academic-Search：重新定义 AI 驱动的学术研究。**
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/Mingyue-Cheng/academic-search ~/.claude/skills/academic-search
-
-# macOS / Linux / Bash
-bash ~/.claude/skills/academic-search/scripts/check-deps.sh
+git clone https://github.com/Asianfleet/academic-search academic-search
+cd academic-search
+# 仅使用此包的 CDP 浏览器模式时运行；API 检索不需要启动浏览器
+bash scripts/check-deps.sh
 ```
 
-Windows PowerShell：
+无 Bash 的环境（例如 Windows）直接使用 Node：API-only 任务不需要任何准备脚本，需要浏览器时运行 `node scripts/ensure-proxy.mjs`。
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File "$HOME\.claude\skills\academic-search\scripts\check-deps.ps1"
-```
-
-然后直接对 Claude Code 说：
+将此目录安装或链接到宿主的 Skill 目录后，直接提出任务：
 
 ```
 搜索 2023 年以来关于 graph neural network 的顶会论文，给我前 10 篇
@@ -63,25 +67,27 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "$HOME\.claude\skills\academ
 
 **检索与筛选**
 - 学科路由：按 CS/AI、医学/生命科学、物理/数学、化学/材料、社科/经济、人文/法律选择检索源和评价标准
-- 两遍策略：先输出轻量摘要表，用户确认核心论文后再深拉完整元数据；用户明确数量时直接输出，无需二次确认
-- Query 扩展：自动展开 2-3 个互补 query（同义词 / 子概念 / 缩写全称），覆盖率比单 query 提升 30-50%
-- 前沿性排序：**时效性优先**（近 6 月 `[新]` 置顶）→ 引用数 → CCF 等级（参考项），不因引用数低埋没最新进展
-- 多平台结果以 DOI/arXiv ID 为主键自动去重合并
+- 两遍策略：先筛候选再补齐所需字段；用户已要求完整元数据时连续完成两遍，无需二次确认
+- Query 扩展：按任务展开互补 query（同义词 / 子概念 / 缩写全称），合并去重；不承诺固定覆盖率增益
+- 前沿性排序：相关性和纳入条件优先；前沿任务标注近期工作，引用数与学科评价作为辅助
+- 可执行记录校验与去重：按 DOI / arXiv ID / PMID 精确标识保守归组；规范化后标题完全相同只报告待核对候选
 
 **数据获取**
-- PDF：开放获取 PDF 级联获取；arXiv ID 存在即直接构造链接，不依赖 S2 `openAccessPdf`（该字段经常为 null）
-- 全文状态：标注 `open_pdf` / `needs_institution` / `no_open_pdf` / `anti_bot_blocked` / `html_not_pdf`，不绕过付费墙
+- PDF：开放获取 PDF 按需发现；仅构造 URL 时保持未验证，文件格式与论文身份分开记录
+- 全文状态：标注 `open_pdf` / `login_required` / `needs_institution` / `no_open_pdf` / `anti_bot_blocked` / `html_not_pdf`，不绕过付费墙
 - OA PDF 下载：可生成下载 manifest，并只下载 `open_pdf` 状态的合法开放 PDF；不绕过付费墙，不处理 Sci-Hub/WebVPN/Tor。
 - BibTeX：平台原生导出 + 字段拼装双路径
 - 跨学科元数据：Crossref / OpenAlex / Unpaywall 补 DOI、作者机构、开放获取状态和引用关系
-- 代码：Papers with Code API 自动补全代码可用性列
+- 代码：优先论文和作者官方链接；第三方目录仅作候选，使用前核验可用性
 - 引用关系：S2 引用/被引 API，Google Scholar 引用数补充
 
 **可靠性与扩展**
 - 失败信号处理：429 / 超时 / 空结果各有对应调整策略，不在同一条路上盲目重试
-- CDP 浏览器模式：直连用户日常 Chrome，天然携带登录态，用于 Google Scholar 等反爬平台
-- 并行分治：多目标分发子 Agent 并行执行，共享 Proxy，tab 级隔离
-- 站点经验预置：平台与出版商操作经验预置，跨 session 积累更新
+- CDP 浏览器模式：默认启动独立持久 Chrome profile；通过显式端点可连接已运行浏览器，API-only 不启动
+- 网页读取与交互：`/readPage` 返回正文、链接、原始 `citation_*` 页面声明、提取来源和独立截断标记；填表、点击和按键先检查唯一目标与可操作状态，`insertText` 用单次精确目标 DOM 编辑避免焦点竞态误写
+- 动作证据：浏览器动作明确返回 `status:"dispatched"` 与 `outcome_verified:false`，保存、提交和检索结果须另行核验
+- 并行分治：独立目标可并行，使用各自 target；同平台共享速率预算，桌面焦点操作串行
+- 站点经验预置：按域名和操作读取经验；历史条目保留验证状态和失效回退，更新遵循宿主授权
 
 ## 多学科使用方式
 
@@ -124,27 +130,51 @@ Academic-Search 现在按学科选择检索源、query expansion、排序规则�
 
 ## 安装
 
+选择当前宿主的安装位置。以下分别为常见 Codex 与 Claude Code 目录；脚本均从实际 Skill 根目录运行。
+
 ```bash
+# Codex
+git clone https://github.com/ustc-ai4science/academic-search ~/.codex/skills/academic-search
+
+# Claude Code
 # 方式一：手动安装
-git clone https://github.com/Mingyue-Cheng/academic-search ~/.claude/skills/academic-search
+git clone https://github.com/ustc-ai4science/academic-search ~/.claude/skills/academic-search
 
 # 方式二：让 Claude 安装
-# 帮我安装这个 skill：https://github.com/Mingyue-Cheng/academic-search
+# 帮我安装这个 skill：https://github.com/ustc-ai4science/academic-search
 
 # 方式三：本地开发软链接（在项目目录内执行）
 ln -sfn "$(pwd)" ~/.claude/skills/academic-search
 ```
 
-**前置要求（仅 CDP 模式需要）**：arXiv / S2 / PubMed 等 API 平台直接可用，无需配置。如需访问 Google Scholar，需开启 Chrome 远程调试：
+**前置要求**：脚本使用 Node.js 22+；浏览器模式使用本机已安装的 Chrome。API 认证和配额以平台当前文档及账号为准；只调用 API 不需要启动浏览器。
 
-1. 打开 `chrome://inspect/#remote-debugging`
-2. 勾选 **Allow remote debugging for this browser instance**
+### 专用 Chrome
+
+**默认值迁移：v1.3.1 将 Proxy 端口从 3456 改为 3457。** 更新自定义调用脚本中的基址；不要把旧端口上运行的其他工具当作新版代理，也无需为此停止旧代理。
+
+在实际 Skill 目录运行 `bash scripts/check-deps.sh`（API-only 任务加 `--api-only`，跳过浏览器准备并只做凭据与基础检查），运行时会自动准备独立持久 profile：`~/.local/share/academic-search/chrome-profile`。Chrome 调试端口由系统动态分配，仅绑定本机；不会扫描或连接日常 Chrome。首次访问需要登录的网站时，在此专用窗口中登录，日常浏览器的登录态不会复制。无 Bash 的环境（例如 Windows）直接使用 Node，需要浏览器时运行 `node scripts/ensure-proxy.mjs`。
+
+| 配置 | 用途 |
+|---|---|
+| `ACADEMIC_CHROME_PROFILE` | 覆盖专用 profile 目录 |
+| `ACADEMIC_CHROME_EXECUTABLE` | 指定本机 Chrome 可执行文件 |
+| `ACADEMIC_CHROME_ENDPOINT` | 仅连接指定的已运行浏览器端点；设置后不自动启动或回退 |
+| `CDP_PROXY_PORT` | Proxy 的 HTTP 端口，默认 3457；不是 Chrome 调试端口 |
+
+例如，仅在 WebUse 已运行于该端点时复用：
+
+```bash
+ACADEMIC_CHROME_ENDPOINT=http://127.0.0.1:9334 bash scripts/check-deps.sh
+```
+
+端点不存在会明确失败；此命令不会启动 WebUse。首次网站登录、验证码及网站会话失效仍按实际页面处理。`check-deps` 仅复用可核对为本工具记录的代理进程；未知端口占用会报错，不接管或终止其他代理。配置与诊断详见 [CDP API](references/cdp-api.md)。
 
 ---
 
 ## 平台访问策略
 
-Open API 优先，Google Scholar 与 CNKI 等无公开 API 或强反爬平台需要 Chrome 远程调试：
+结构化 API 优先；动态页面或 API 无法满足需求时使用当前可用的浏览器工具。下表为路由指引，并非所有服务的实时可用性保证：
 
 | 平台 | 访问方式 |
 |------|---------|
@@ -154,12 +184,12 @@ Open API 优先，Google Scholar 与 CNKI 等无公开 API 或强反爬平台需
 | OpenAlex | REST API |
 | Unpaywall | REST API |
 | PubMed | NCBI E-utilities |
-| Papers with Code | REST API |
+| Papers with Code | 历史接口仅作参考，先核验服务；代码链接优先论文/作者官方来源 |
 | ACM DL | WebFetch + Jina |
 | IEEE Xplore | WebFetch / Jina / 官方 API |
 | ScienceDirect / Wiley / Springer / ACS | 开放获取判定 + 机构访问提示 |
-| **Google Scholar** | **CDP 浏览器（需 Chrome 调试）** |
-| **CNKI（知网）** | **CDP 浏览器（需 Chrome 调试）** |
+| **Google Scholar** | **CDP 浏览器（自动准备专用 Chrome）** |
+| **CNKI（知网）** | **CDP 浏览器（自动准备专用 Chrome）** |
 
 全文获取只针对合法开放访问来源。商业出版商页面可访问不代表 PDF 可下载；遇到需要机构权限、Cloudflare、验证码或 PDF 路由返回 HTML 时，Skill 会报告状态而不是继续尝试绕过限制。
 
@@ -183,6 +213,26 @@ Open API 优先，Google Scholar 与 CNKI 等无公开 API 或强反爬平台需
 搜索 time series agent 近两年的论文，生成开放 PDF 下载清单
 ```
 
+### 论文记录校验与保守去重
+
+机器可读结果可以先校验字段、标识符、引用来源与字段来源：
+
+```bash
+node scripts/academic-records.mjs validate \
+  --input results.json \
+  --output validation.json
+```
+
+再按规范化 DOI、基础 arXiv ID 或 PMID 的精确匹配归组：
+
+```bash
+node scripts/academic-records.mjs dedupe \
+  --input results.json \
+  --output deduplicated.json
+```
+
+去重结果保留冲突、原始记录索引、来源和 arXiv 版本。仅规范化后标题完全相同的记录不会自动合并，而是进入 `possible_duplicates` 供身份复核。校验报告中的 warning 提示缺少来源等证据问题；error 会在写出报告后返回非零退出码。详见 [academic-records](references/academic-records.md)。
+
 ### 开放 PDF 下载清单
 
 Academic-Search 可以把检索结果转换成开放 PDF 下载清单：
@@ -193,14 +243,15 @@ node scripts/oa-pdf-download.mjs \
   --manifest download-manifest.json
 ```
 
-确认后只下载 `open_pdf` 记录：
+用户已要求下载时，直接执行下面的命令；只处理来源证据支持的 `open_pdf` 记录，实际字节仍需验证：
 
 ```bash
 node scripts/oa-pdf-download.mjs \
   --input results.json \
   --manifest download-manifest.json \
   --download \
-  --out-dir ./papers
+  --out-dir ./papers \
+  --timeout-ms 30000
 ```
 
 该功能只处理合法开放 PDF，不使用 Sci-Hub、LibGen、WebVPN、Tor 或 Cloudflare 绕过。Manifest 会保留每条记录的处理结果：
@@ -208,29 +259,39 @@ node scripts/oa-pdf-download.mjs \
 | 字段 | 含义 |
 |------|------|
 | `download_status` | `eligible` / `downloaded` / `skipped` / `failed` / `not_pdf` |
-| `download_error` | 跳过或失败原因 |
+| `download_error` / `download_error_code` | 跳过或失败原因及稳定错误码 |
+| `final_url` / `checked_at` / `sha256` | 最终响应地址、验证时间和文件摘要 |
+| `pdf_verification_status` | `unverified` / `parser_validated` / `structure_checked_parser_unavailable` / `not_pdf` / `invalid_pdf` |
+| `paper_identity_status` | 下载器始终返回 `unverified`，不自动断言论文身份匹配 |
 | `local_pdf_path` | 已下载 PDF 的本地路径，仅 `downloaded` 时填写 |
 
-### 与 scansci-pdf 的分工
+### 验证边界
 
-Academic-Search 负责检索、筛选、元数据、开放获取状态和开放 PDF 下载清单。
-如果任务目标是“尽可能下载论文 PDF”，尤其涉及 WebVPN、机构代理、多源竞速或非开放来源，应交给 scansci-pdf 这类专门的论文获取工具处理。
+下载器检查 PDF 签名、结尾和基本 xref 结构；安装了 Poppler `pdfinfo` 时再检查可解析性。缺少解析器会明确记录 `structure_checked_parser_unavailable`，不能当作完整文件验证。严格检查可能拒绝部分可修复 PDF；格式通过也不代表正文属于目标论文。
+
+可用 `--pdfinfo-path` 指定解析器路径。每次网络请求默认上限 30 秒，解析器执行上限为请求超时与 5 秒中的较小值。HTTP 429 保留 `Retry-After`；脚本不会自行无限重试。
+
+字段定义见 [metadata-schema](references/metadata-schema.md)，全文流程见 [full-text-workflow](references/full-text-workflow.md)。
 
 ---
 
 ## CDP Proxy API
 
-Proxy 通过 WebSocket 直连 Chrome，提供 HTTP API（Agent 自动管理生命周期）：
+Proxy 通过 WebSocket 连接专用 Chrome，或显式指定的已运行浏览器端点，提供 HTTP API。`/health` 是只读状态检查，返回版本与浏览器配置，不触发连接；首次后台连接完成前可能显示 `connected:false`。
 
 ```bash
-curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/new?url=URL"                              # 新建 tab
-curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/eval?target=ID" -d 'JS 表达式'    # 执行 JS
-curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/click?target=ID" -d 'CSS 选择器'  # 点击元素
-curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/screenshot?target=ID&file=/tmp/shot.png"  # 截图
-curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/close?target=ID"                          # 关闭 tab
+curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/new?url=URL"                              # 新建 tab
+curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/eval?target=ID" -d 'JS 表达式'    # 执行 JS
+curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/readPage?target=ID" -H 'Content-Type: application/json' -d '{}' # 读取正文
+curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/fill?target=ID" -H 'Content-Type: application/json' -d '{"selector":"input[name=q]","text":"query"}' # 填充
+curl -s -X POST "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/click?target=ID" -d 'CSS 选择器'  # 点击元素
+curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/screenshot?target=ID&file=/tmp/shot.png"  # 截图
+curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/close?target=ID"                          # 关闭 tab
 ```
 
-完整参考见 [`references/cdp-api.md`](references/cdp-api.md)。
+`POST /wait` 按命名条件等待结果/空结果/阻塞状态；`readPage` 提供有界正文观察；`click`、`clickAt`、`fill`、`insertText`、`setFiles` 默认要求选择器唯一匹配。`insertText` 明示 `keyboard_semantics:false`，真实 Enter、Backspace 等使用 `/press`。导航返回 `load_status`。动作返回 `status:"dispatched"` 与 `outcome_verified:false`，页面加载或动作派发后仍需核验业务结果。
+
+完整接口见 [`references/cdp-api.md`](references/cdp-api.md)，操作规则见 [browser-workflow](references/browser-workflow.md)。
 
 ---
 
@@ -239,25 +300,28 @@ curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3456}/close?target=ID"              
 ```
 academic-search/
 ├── Makefile                    # 标准测试入口（make test / make test-release）
-├── SKILL.md                    # 主指令文件（搜索哲学、平台矩阵、核心能力）
+├── SKILL.md                    # 主指令文件（任务协议、路由与硬要求）
 ├── scripts/
-│   ├── cdp-proxy.mjs           # CDP Proxy（直连用户 Chrome）
-│   ├── check-deps.sh           # macOS/Linux 环境检查 + 自动启动 Proxy
-│   ├── check-deps.ps1          # Windows PowerShell 环境检查 + 自动启动 Proxy
-│   ├── check-deps-self-test.ps1 # PowerShell 版本回归测试
+│   ├── cdp-proxy.mjs           # CDP Proxy（专用 Chrome / 显式端点）
+│   ├── ensure-proxy.mjs         # 代理就绪与进程归属核对
+│   ├── proxy-owner.mjs          # 代理进程身份核验
+│   ├── browser-runtime.mjs      # 浏览器配置与启动参数
+│   ├── browser-page.mjs         # 网页正文提取与元素可操作性表达式
+│   ├── academic-records.mjs     # 学术记录校验与保守去重 CLI
+│   ├── check-deps.sh           # 环境与凭据检查 + 自动启动 Proxy
 │   ├── oa-pdf-download.mjs     # OA PDF manifest 生成与开放 PDF 下载
 │   ├── oa-pdf-download-self-test.sh # OA PDF 下载 helper 回归测试
 │   ├── self-test.sh            # 本地回归测试
 │   └── release-test.sh         # 发布前测试
 ├── references/
-│   ├── api-cookbook/           # 多平台调用速查（按平台分组）
-│   │   ├── open-api-platforms.md
-│   │   ├── semantic-scholar.md
-│   │   ├── ieee-acm.md
-│   │   └── google-scholar-cnki.md
+│   ├── api-cookbook.md         # 多平台调用速查
+│   ├── task-protocol.md        # 任务目录、产出协议与审计轨迹
 │   ├── metadata-schema.md      # 跨平台统一元数据 schema
+│   ├── academic-records.md     # 记录校验、去重与结果解释
 │   ├── venue-rankings.md       # CS 会议/期刊 CCF 分级速查
 │   ├── cdp-api.md              # CDP Proxy HTTP API 完整参考
+│   ├── browser-workflow.md     # 页面状态、等待与结果核验
+│   ├── full-text-workflow.md   # OA 证据、文件验证与下载
 │   ├── disciplines/            # 多学科学科路由与 query expansion
 │   ├── rankings/               # 非 CS 学科评价/证据等级
 │   ├── workflows/              # 系统综述、核心论文清单等工作流
@@ -267,7 +331,7 @@ academic-search/
     └── multidisciplinary-improvement-analysis.md  # 多学科能力完善建议
 ```
 
-测试：`make test` / `make test-release`（端口冲突时加 `CDP_PROXY_PORT=4570`）
+测试：`make test-offline` 无需 Chrome、只使用本地 fixtures；`make test` / `make test-release` 包含真实 Chrome 回归测试，需要本机 Chrome 或显式可用端点。测试创建独立代理和自己的标签页，不依赖日常 Chrome 的远程调试开关。
 
 ---
 
@@ -275,9 +339,9 @@ academic-search/
 
 > Skill = 哲学 + 技术事实，不是操作手册。讲清 tradeoff 让 AI 自己选，不替它推理。
 
-搜索的瓶颈不在"搜"，在"筛"。核心策略是先输出轻量摘要表，让用户确认核心论文后再深拉，避免无效的完整元数据抓取。
+搜索的瓶颈不在"搜"，在"筛"。核心策略是先筛选再补字段；以用户请求为完成标准，不因内部两遍流程中断已经授权的完整任务。
 
-排序优先级：**时效性（近 6 月 `[新]` 置顶）→ 引用数 → CCF 等级（参考项）**。前沿方向的新论文引用数天然偏低，以时效性为首要维度确保最新进展不被埋没。API 优先、CDP 作为兜底，结果统一结构化输出。
+相关性、学科标准和用户纳入条件决定筛选；时效性和引用数作为任务相关的辅助信号。API 优先、浏览器按需、字段保留来源。
 
 📋 [使用 Skill vs 未使用 Skill 的搜索对比实验](docs/skill-usage-comparison.md) — 以 "Time Series Agent" 为例，完整记录两次执行差异与关键结论。
 
