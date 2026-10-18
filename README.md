@@ -53,7 +53,13 @@ cd academic-search
 bash scripts/check-deps.sh
 ```
 
-无 Bash 的环境（例如 Windows）直接使用 Node：API-only 任务不需要任何准备脚本，需要浏览器时运行 `node scripts/ensure-proxy.mjs`。
+Windows PowerShell（等价命令）：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
+```
+
+两个脚本语义相同：依赖与凭据检查（只输出环境变量名，不输出值），`--api-only` 只跳过浏览器准备。
 
 将此目录安装或链接到宿主的 Skill 目录后，直接提出任务：
 
@@ -153,7 +159,7 @@ ln -sfn "$(pwd)" ~/.claude/skills/academic-search
 
 **默认值迁移：v1.3.1 将 Proxy 端口从 3456 改为 3457。** 更新自定义调用脚本中的基址；不要把旧端口上运行的其他工具当作新版代理，也无需为此停止旧代理。
 
-在实际 Skill 目录运行 `bash scripts/check-deps.sh`（API-only 任务加 `--api-only`，跳过浏览器准备并只做凭据与基础检查），运行时会自动准备独立持久 profile：`~/.local/share/academic-search/chrome-profile`。Chrome 调试端口由系统动态分配，仅绑定本机；不会扫描或连接日常 Chrome。首次访问需要登录的网站时，在此专用窗口中登录，日常浏览器的登录态不会复制。无 Bash 的环境（例如 Windows）直接使用 Node，需要浏览器时运行 `node scripts/ensure-proxy.mjs`。
+在实际 Skill 目录运行 `bash scripts/check-deps.sh`（API-only 任务加 `--api-only`，跳过浏览器准备并只做凭据与基础检查），运行时会自动准备独立持久 profile：`~/.local/share/academic-search/chrome-profile`。Chrome 调试端口由系统动态分配，仅绑定本机；不会扫描或连接日常 Chrome。首次访问需要登录的网站时，在此专用窗口中登录，日常浏览器的登录态不会复制。Windows 使用 `scripts/check-deps.ps1`，参数与语义相同。
 
 | 配置 | 用途 |
 |---|---|
@@ -309,6 +315,7 @@ academic-search/
 │   ├── browser-page.mjs         # 网页正文提取与元素可操作性表达式
 │   ├── academic-records.mjs     # 学术记录校验与保守去重 CLI
 │   ├── check-deps.sh           # 环境与凭据检查 + 自动启动 Proxy
+│   ├── check-deps.ps1          # Windows PowerShell 环境与凭据检查 + 自动启动 Proxy
 │   ├── oa-pdf-download.mjs     # OA PDF manifest 生成与开放 PDF 下载
 │   ├── oa-pdf-download-self-test.sh # OA PDF 下载 helper 回归测试
 │   ├── self-test.sh            # 本地回归测试

@@ -26,7 +26,7 @@
 | D2 | “无条件遵守”协议放哪 | **折中**：`SKILL.md` 保留 4–6 行硬要求 + 强制指路，细则进 `references/task-protocol.md` |
 | D3 | README clone URL | 不跟上游，改用本 fork 地址 `Asianfleet/academic-search` |
 | D4 | 版本号 | fork 自有版本：`1.4.0+asianfleet.1` |
-| D5 | `check-deps.ps1` | **不再维护**，删除 `scripts/check-deps.ps1` 与 `scripts/check-deps-self-test.ps1`；Windows 一律直接使用 Node（`node scripts/ensure-proxy.mjs`） |
+| D5 | `check-deps.ps1` | ~~不再维护~~ **已修订（执行后用户要求恢复）**：保留 `scripts/check-deps.ps1`，按 v1.4 契约重写（参数门、curl 检查、凭据检查、Node 版本门、委托 `ensure-proxy.mjs`）；`scripts/check-deps-self-test.ps1` 暂未恢复（旧断言针对 v1.3 流程，需重写，待定） |
 | D6 | 本 fork 附加文档 | 原样保留（`docs/superpowers/plans/2026-05-08-check-deps-powershell.md`、`docs/multidisciplinary-improvement-analysis.md`） |
 
 ## 冲突清单与逐文件策略
@@ -39,6 +39,7 @@
 | `references/api-cookbook.md` | modify/delete | 取上游文件，并入本 fork 独有内容；删除 `references/api-cookbook/*.md` |
 | `references/cdp-api.md` | content ×2 | 取上游重写版；本 fork 对该文件的 2 行改动作废（去掉 `check-deps.ps1` 提法） |
 | `scripts/check-deps.sh` | content ×1 | 取上游 v1.4 版，把“API 凭据检查块”插到 `--api-only` 早退**之前** |
+| `scripts/check-deps.ps1` | 无冲突（上游无此文件） | 按 v1.4 契约重写为 `check-deps.sh` 的等价实现（原版 v1.3 流程已废弃） |
 
 ## SKILL.md 移植清单
 
@@ -85,11 +86,13 @@
 - [x] **Step 3:** `SKILL.md` 植入：任务产出协议（硬要求 + 指路）、完成判定、前置检查（含 `--api-only` 与无 Bash 环境的 Node 路径）、跨平台硬规则、并行分治 + S2 权限、S2 速率纪律指针。
 - [x] **Step 4:** 统一 S2 表述：按官方 API 产品页采用“未认证共享全局池 1000 req/s、带 Key 1 RPS”，替换上游旧值“无 Key 约 100 req/5min”；429 预防纪律与有界恢复预算分层（恢复不得立即重试）。
 
-### Task 4: D5 清理（删除 PowerShell 实现）
+### Task 4: D5 决策修订（先删除，后按用户要求恢复 PowerShell 实现）
 
-- [x] **Step 1:** 删除 `scripts/check-deps.ps1`、`scripts/check-deps-self-test.ps1`。
-- [x] **Step 2:** 清除全部 `check-deps.ps1` 提法（全树 grep 为 0），改为 Node 直连说明。
-- [x] **Step 3:** 保留 `docs/superpowers/plans/2026-05-08-check-deps-powershell.md`（按 D6）。
+- [x] **Step 1:** 按原 D5 删除 `scripts/check-deps.ps1`、`scripts/check-deps-self-test.ps1`。
+- [x] **Step 2（修订）:** 用户要求恢复 `check-deps.ps1`，按 v1.4 契约重写：参数校验（仅接受 `--api-only`）与 `check-deps.sh` 同语义、curl 检查、凭据检查（仅变量名）、`--api-only` 跳过浏览器准备、Node 22+ 版本门、委托 `node ensure-proxy.mjs` 并透传退出码；文件保留 UTF-8 BOM（PowerShell 5.1 中文输出所必需）。旧版的日常 Chrome 端口发现、自拉 cdp-proxy、`/targets` 轮询已删除（v1.4 不再需要）。
+- [x] **Step 3（修订）:** 文档恢复 Windows 入口：`README.md` / `README.en.md`（Quick Start、专用 Chrome 段、目录树）、`SKILL.md`（前置检查）、`project-introduction.md`（目录树）。
+- [x] **Step 4:** 保留 `docs/superpowers/plans/2026-05-08-check-deps-powershell.md`（按 D6）。
+- [ ] **Step 5（待用户决定）:** 是否重写 `scripts/check-deps-self-test.ps1`，覆盖 v1.4 契约（参数校验、凭据脱敏、`--api-only`、浏览器模式委托与退出码透传）。
 
 ### Task 5: 一致性与版本号
 
@@ -102,7 +105,10 @@
 - [x] **Step 1:** `make` 在本机不可用（command not found），改直接运行等价命令：`node --test scripts/*.test.mjs` + `bash scripts/oa-pdf-download-self-test.sh`（后者 PASS）。
 - [x] **Step 2:** 本机 Windows 下 node 测试 123 passed / 129 failed；同一套测试在 `upstream/main` 的干净导出中同样是 123 / 129，且失败用例集合完全一致——失败是上游测试的 POSIX 假设（路径分隔符、进程核验）导致，与本次合并无关。未运行 `make test-release`（需本机 Chrome 与专用 profile）。
 - [x] **Step 3:** Windows 侧验证：`node scripts/ensure-proxy.mjs` 路径由 `check-deps.sh` 完整走通（凭据 → node 版本门 → 代理归属核验），未启动 Chrome。
-- [x] **Step 4:** `git diff --stat upstream/main` 仅列出本 fork 的 10 个文件（+598/−26）与新增任务协议文件，无测试或运行时脚本改动。
+- [x] **Step 4:** `git diff --stat upstream/main` 仅列出本 fork 的文件（无测试或运行时脚本改动）。
+- [x] **Step 5（修订后补充）:** `check-deps.ps1` 实测（PowerShell 5.1 与 7）：`--api-only` 带假 `S2_API_KEY` 时只输出变量名、退出 0；非法参数与参数个数 >1 返回 usage/1；端口被占用时透传 `PROXY_PORT_IN_USE` 且退出 1；空闲端口下 PS7 走通完整浏览器链路（`proxy: ready ... managed`），验证后已停止该次记录的代理 PID 与专用 profile 的 Chrome 进程并清理状态文件。
+
+**环境说明：** PowerShell 中文输出按系统 ANSI 代码页（本机 GBK）编码，与旧版行为一致；在 Git Bash 管道中查看会显示为乱码，属显示环境差异，不是脚本缺陷。
 
 ## 验证边界
 

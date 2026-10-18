@@ -44,7 +44,13 @@ cd academic-search
 bash scripts/check-deps.sh
 ```
 
-Without Bash (for example on Windows), use Node directly: API-only tasks need no preparation script, and browser mode runs `node scripts/ensure-proxy.mjs`.
+Windows PowerShell (equivalent):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
+```
+
+Both scripts behave the same: dependency and credential checks that print environment variable names only, never values; `--api-only` skips browser preparation.
 
 Once installed, you can immediately ask Claude Code to perform an academic search task, for example:
 
@@ -190,7 +196,9 @@ Bundled CDP mode uses an installed Chrome executable. From the actual skill dire
 bash scripts/check-deps.sh
 ```
 
-Add `--api-only` for API-only tasks: it prints the credential and base checks (environment variable names only, never key values) and skips browser preparation. Without Bash (for example on Windows), use Node directly: API-only tasks need no preparation script, and browser mode runs `node scripts/ensure-proxy.mjs`. at `~/.local/share/academic-search/chrome-profile`. Chrome selects a dynamic debugging port bound to loopback. The runtime reads only this profile's `DevToolsActivePort`; it does not scan or connect to your everyday Chrome. Sign in to websites in the dedicated window when first needed. Existing everyday-browser cookies and logins are not copied.
+Add `--api-only` for API-only tasks: it prints the credential and base checks (environment variable names only, never key values) and skips browser preparation. Windows uses the PowerShell equivalent `scripts/check-deps.ps1`, which takes the same arguments and behaves identically.
+
+The runtime automatically prepares a separate persistent profile at `~/.local/share/academic-search/chrome-profile`. Chrome selects a dynamic debugging port bound to loopback. The runtime reads only this profile's `DevToolsActivePort`; it does not scan or connect to your everyday Chrome. Sign in to websites in the dedicated window when first needed. Existing everyday-browser cookies and logins are not copied.
 
 | Setting | Purpose |
 |---|---|
@@ -401,6 +409,7 @@ academic-search/
 │   ├── browser-page.mjs               # Page extraction and element-actionability expressions
 │   ├── academic-records.mjs           # Record validation and conservative deduplication CLI
 │   ├── check-deps.sh                 # Environment and credential checks + auto-start Proxy
+│   ├── check-deps.ps1                # Windows PowerShell environment and credential checks + auto-start Proxy
 │   ├── oa-pdf-download.mjs           # OA PDF manifest generation and open PDF download
 │   ├── oa-pdf-download-self-test.sh  # Regression test for OA PDF download helper
 │   ├── self-test.sh                  # Base regression test (installed Chrome / explicit endpoint)

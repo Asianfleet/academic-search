@@ -92,7 +92,8 @@ metadata:
 
 - `check-deps.sh` 在两种模式下都会核对凭据：只输出环境变量名，绝不打印 Key 值。
 - `curl` 是 API 调用的前提；Node.js 22+ 只有浏览器模式需要。
-- API-only 任务运行 `bash "$ACADEMIC_SEARCH_ROOT/scripts/check-deps.sh" --api-only`，不启动浏览器；无 Bash 的环境（例如 Windows）直接使用 Node，API-only 任务无需运行任何准备脚本，需要浏览器时运行 `node "$ACADEMIC_SEARCH_ROOT/scripts/ensure-proxy.mjs"`。
+- `--api-only` 只做依赖与凭据检查并跳过浏览器准备，适合 API-only 任务。
+- Windows 使用等价脚本 `scripts/check-deps.ps1`，同样支持 `--api-only`；两者只输出环境变量名，不输出值。
 - S2、IEEE、NCBI、Crossref 的 API Key 与 OpenAlex、Unpaywall 的邮箱按需配置，缺失只记录为限制，不阻断 API-only 检索。
 
 经验按“域名 → 操作 → 症状”按需读取。条目使用 `unverified` / `verified` / `deprecated` 状态，记录适用环境、前提、失败信号、回退和 `last_verified`。历史未复验条目保持 `last_verified: null`；只有实际观察到预期结果才能升级为 verified。选择器失效时以当前观察修正本次操作。仅在用户授权维护本 Skill 时更新内置经验；普通检索不自动改写 Skill 或全局个人记忆。

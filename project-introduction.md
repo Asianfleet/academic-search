@@ -182,6 +182,7 @@ academic-search/
 │   ├── browser-page.mjs         # 网页正文提取与元素可操作性表达式
 │   ├── academic-records.mjs     # 学术记录校验与保守去重 CLI
 │   ├── check-deps.sh           # 环境与凭据检查 + 自动启动 Proxy
+│   ├── check-deps.ps1          # Windows PowerShell 环境与凭据检查 + 自动启动 Proxy
 │   ├── oa-pdf-download.mjs     # 开放 PDF manifest 生成与下载
 │   ├── oa-pdf-download-self-test.sh # 开放 PDF 下载 helper 回归测试
 │   ├── self-test.sh            # 本地回归测试
