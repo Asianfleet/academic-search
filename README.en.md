@@ -18,13 +18,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ustc-ai4science/academic-search/stargazers">
-    <img src="https://img.shields.io/github/stars/ustc-ai4science/academic-search?style=social" alt="GitHub stars" />
+  <a href="https://github.com/Asianfleet/academic-search/stargazers">
+    <img src="https://img.shields.io/github/stars/Asianfleet/academic-search?style=social" alt="GitHub stars" />
   </a>
-  <a href="https://github.com/ustc-ai4science/academic-search/commits/main">
-    <img src="https://img.shields.io/github/last-commit/ustc-ai4science/academic-search" alt="last commit" />
+  <a href="https://github.com/Asianfleet/academic-search/commits/main">
+    <img src="https://img.shields.io/github/last-commit/Asianfleet/academic-search" alt="last commit" />
   </a>
-  <a href="https://github.com/ustc-ai4science/academic-search">
+  <a href="https://github.com/Asianfleet/academic-search">
     <img src="https://img.shields.io/badge/repo-GitHub-111827?logo=github" alt="repo link" />
   </a>
 </p>

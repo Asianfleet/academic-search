@@ -1,7 +1,7 @@
 # Academic-Search 项目介绍
 
 > 基于本仓库 `README.md`、`SKILL.md`、`docs/` 与 `references/` 内容整理。
-> 项目地址：https://github.com/ustc-ai4science/academic-search
+> 项目地址：https://github.com/Asianfleet/academic-search
 
 ## 一句话定位
 

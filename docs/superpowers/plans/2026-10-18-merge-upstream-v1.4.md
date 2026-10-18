@@ -24,7 +24,7 @@
 |---|---|---|
 | D1 | `api-cookbook` 走向 | **方案 A**：回到上游单文件 `references/api-cookbook.md`，并入本 fork 独有内容；删除 `references/api-cookbook/` 目录拆分 |
 | D2 | “无条件遵守”协议放哪 | **折中**：`SKILL.md` 保留 4–6 行硬要求 + 强制指路，细则进 `references/task-protocol.md` |
-| D3 | README clone URL | 不跟上游，改用本 fork 地址 `Asianfleet/academic-search` |
+| D3 | README clone URL | 不跟上游，改用本 fork 地址 `Asianfleet/academic-search`；**已补全（用户确认，统一到 A 方案）**：README.md / README.en.md 的 clone 与 install 链接、stars / last-commit / repo badge、Star History 链接与图表，以及 `project-introduction.md` 的项目地址全部改为 `Asianfleet/academic-search`；`wechat-promo.md`（上游推广文案，当前与上游一致）未改动，待定 |
 | D4 | 版本号 | fork 自有版本：`1.4.0+asianfleet.1` |
 | D5 | `check-deps.ps1` | ~~不再维护~~ **已修订（执行后用户要求恢复）**：保留 `scripts/check-deps.ps1`，按 v1.4 契约重写（参数门、curl 检查、凭据检查、Node 版本门、委托 `ensure-proxy.mjs`）；`scripts/check-deps-self-test.ps1` 暂未恢复（旧断言针对 v1.3 流程，需重写，待定） |
 | D6 | 本 fork 附加文档 | 原样保留（`docs/superpowers/plans/2026-05-08-check-deps-powershell.md`、`docs/multidisciplinary-improvement-analysis.md`） |
@@ -78,6 +78,11 @@
 - [x] **Step 4:** 解决 `scripts/check-deps.sh`（上游版 + 凭据检查块）。实测：`--api-only` 输出凭据后跳过浏览器准备并返回 0；假 Key 只输出变量名不输出值；非法参数返回 usage/1；端口被占用时按上游契约返回 `PROXY_PORT_IN_USE`（未启动 Chrome）。
 - [x] **Step 5:** `references/api-cookbook.md` 冲突解决为上游单文件；删除 `references/api-cookbook/` 四个拆分文件。
 - [x] **Step 6:** `SKILL.md` 以上游骨架重写，内容移植见 Task 3。
+- [x] **Step 7（后续修订，D3 补全）:** 用户确认采用 A 方案（fork 自洽），仓库地址全量统一到 `Asianfleet/academic-search`：
+  - `README.md`：stars badge、Star History 链接、Codex / Claude 两处 clone、"帮我安装这个 skill" 链接、底部 Star History 图表（3 个 `api.star-history.com` URL）。
+  - `README.en.md`：stars / last-commit / repo 三个 badge 的 `href` 与 `img src`（clone 与 install 链接在合并时已是 `Asianfleet`）。
+  - `project-introduction.md`：项目地址。
+  - 未改动：`wechat-promo.md`（微信公众号推广文案，与上游保持一致），如需一并改为 fork 地址需用户确认。
 
 ### Task 3: 本 fork 内容移植
 

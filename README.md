@@ -8,10 +8,10 @@
 <p align="center">
   <img src="https://img.shields.io/badge/version-v1.4.0-0f766e" />
   <img src="https://img.shields.io/badge/license-MIT-1f2937" />
-  <img src="https://img.shields.io/github/stars/ustc-ai4science/academic-search?style=social" />
+  <img src="https://img.shields.io/github/stars/Asianfleet/academic-search?style=social" />
 </p>
 
-<p align="center">📈 <a href="https://www.star-history.com/?repos=ustc-ai4science%2Facademic-search&type=date&legend=top-left">Star History</a></p>
+<p align="center">📈 <a href="https://www.star-history.com/?repos=Asianfleet%2Facademic-search&type=date&legend=top-left">Star History</a></p>
 
 <p align="center">🌐 <a href="README.en.md">English</a> | 简体中文</p>
 
@@ -140,14 +140,14 @@ Academic-Search 现在按学科选择检索源、query expansion、排序规则�
 
 ```bash
 # Codex
-git clone https://github.com/ustc-ai4science/academic-search ~/.codex/skills/academic-search
+git clone https://github.com/Asianfleet/academic-search ~/.codex/skills/academic-search
 
 # Claude Code
 # 方式一：手动安装
-git clone https://github.com/ustc-ai4science/academic-search ~/.claude/skills/academic-search
+git clone https://github.com/Asianfleet/academic-search ~/.claude/skills/academic-search
 
 # 方式二：让 Claude 安装
-# 帮我安装这个 skill：https://github.com/ustc-ai4science/academic-search
+# 帮我安装这个 skill：https://github.com/Asianfleet/academic-search
 
 # 方式三：本地开发软链接（在项目目录内执行）
 ln -sfn "$(pwd)" ~/.claude/skills/academic-search
@@ -363,11 +363,11 @@ MIT · 作者：[Mingyue Cheng](https://mingyue-cheng.github.io/)
 ## Star History
 
 <p align="center">
-  <a href="https://www.star-history.com/?repos=ustc-ai4science%2Facademic-search&amp;type=date&amp;legend=top-left">
+  <a href="https://www.star-history.com/?repos=Asianfleet%2Facademic-search&amp;type=date&amp;legend=top-left">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ustc-ai4science/academic-search&amp;type=Date&amp;theme=dark" />
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ustc-ai4science/academic-search&amp;type=Date" />
-      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=ustc-ai4science/academic-search&amp;type=Date" />
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Asianfleet/academic-search&amp;type=Date&amp;theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Asianfleet/academic-search&amp;type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Asianfleet/academic-search&amp;type=Date" />
     </picture>
   </a>
 </p>
