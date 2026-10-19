@@ -9,6 +9,18 @@ metadata:
 
 按用户要求检索、筛选并交付可追溯的学术资料。优先官方 API 和论文来源；浏览器用于动态页面、交互或当前 API 无法满足的字段。
 
+## 前置检查（任何任务的第一步）
+
+本文与 references 里的脚本路径都相对本 `SKILL.md` 所在目录；先把该目录的绝对路径保存为 `ACADEMIC_SEARCH_ROOT`。需要产出文件的任务，先按下方《任务产出协议》建好任务目录与 `protocol.md`，再执行本节检查。
+
+在任何 API、WebSearch / WebFetch、CDP 调用之前先执行：
+
+- `bash "$ACADEMIC_SEARCH_ROOT/scripts/check-deps.sh"`；只做 API 检索时加 `--api-only`，它只做依赖与凭据检查并跳过浏览器准备。
+- Windows 使用等价脚本：`powershell -NoProfile -ExecutionPolicy Bypass -File "$env:ACADEMIC_SEARCH_ROOT\scripts\check-deps.ps1"`，同样支持 `--api-only`。
+- 两个脚本在两种模式下都会核对凭据：只输出环境变量名，绝不打印 Key 值。
+- `curl` 是 API 调用的前提；Node.js 22+ 只有浏览器模式需要。
+- S2、IEEE、NCBI、Crossref 的 API Key 与 OpenAlex、Unpaywall 的邮箱按需配置，缺失只记录为限制，不阻断 API-only 检索。
+
 ## 任务范围与完成标准
 
 从请求确定学科、论文范围、年份、数量和所需字段；只有影响结果且无法合理推断的缺项才询问。开放式选题可先轻量检索、筛选，再补充核心论文；用户已经要求完整元数据、摘要、BibTeX 或下载时，直接完成相应步骤，不因“两遍策略”再次要求确认。
@@ -30,7 +42,7 @@ metadata:
 
 关键阶段的中间产物必须分类存放于任务目录内的子目录或文件（按阶段、来源平台、论文批次等自定标准），彼此可区分、便于追溯，不得散落在任务目录之外，并全部登记到 `manifest.json`。子 Agent 的中间结果同样写入该任务目录，由主 Agent 登记汇总。
 
-`trace.md` 的列定义、中间产物分类要求与禁止记录的内容见 [任务产出协议](references/task-protocol.md)；需要产出文件时先读该文件。
+`trace.md` 的列定义、中间产物分类要求与禁止记录的内容见 [任务产出协议](references/task-protocol.md)；需要产出文件时先读该文件。任务目录与 `protocol.md` 就绪后，再执行开头的《前置检查》。
 
 ## 学科路由与来源
 
@@ -86,14 +98,6 @@ metadata:
 
 ## 运行路径与站点经验
 
-本文及 references 中的脚本路径均相对本 `SKILL.md` 所在目录。先将其绝对路径保存为 `ACADEMIC_SEARCH_ROOT`，再运行 `bash "$ACADEMIC_SEARCH_ROOT/scripts/check-deps.sh"`、`node "$ACADEMIC_SEARCH_ROOT/scripts/academic-records.mjs"` 或 `node "$ACADEMIC_SEARCH_ROOT/scripts/oa-pdf-download.mjs"`；不要假定安装在某个宿主的固定目录。仅在使用 bundled CDP 运行时时执行第一条命令。默认自动启动本机 Chrome，使用独立持久 profile（`~/.local/share/academic-search/chrome-profile`），不发现或连接日常 Chrome；首次网站登录需在专用 profile 中完成，日常登录态不会复制。显式设置 `ACADEMIC_CHROME_ENDPOINT` 时只连接该已运行端点，失败不自动启动或回退；`CDP_PROXY_PORT` 仅指定代理端口，v1.4.0 默认仍为 3457（v1.3.1 从 3456 迁移）；调用前核对新版代理身份，不接管旧端口服务。配置与协议见 [cdp-api](references/cdp-api.md)。
-
-执行前置检查（任务开始前，尤其在任何 API、WebSearch / WebFetch、CDP 之前）：
-
-- `check-deps.sh` 在两种模式下都会核对凭据：只输出环境变量名，绝不打印 Key 值。
-- `curl` 是 API 调用的前提；Node.js 22+ 只有浏览器模式需要。
-- `--api-only` 只做依赖与凭据检查并跳过浏览器准备，适合 API-only 任务。
-- Windows 使用等价脚本 `scripts/check-deps.ps1`，同样支持 `--api-only`；两者只输出环境变量名，不输出值。
-- S2、IEEE、NCBI、Crossref 的 API Key 与 OpenAlex、Unpaywall 的邮箱按需配置，缺失只记录为限制，不阻断 API-only 检索。
+其他脚本按同样的路径约定调用：`node "$ACADEMIC_SEARCH_ROOT/scripts/academic-records.mjs"`、`node "$ACADEMIC_SEARCH_ROOT/scripts/oa-pdf-download.mjs"`；不要假定安装在某个宿主的固定目录。默认自动启动本机 Chrome，使用独立持久 profile（`~/.local/share/academic-search/chrome-profile`），不发现或连接日常 Chrome；首次网站登录需在专用 profile 中完成，日常登录态不会复制。显式设置 `ACADEMIC_CHROME_ENDPOINT` 时只连接该已运行端点，失败不自动启动或回退；`CDP_PROXY_PORT` 仅指定代理端口，v1.4.0 默认仍为 3457（v1.3.1 从 3456 迁移）；调用前核对新版代理身份，不接管旧端口服务。配置与协议见 [cdp-api](references/cdp-api.md)。
 
 经验按“域名 → 操作 → 症状”按需读取。条目使用 `unverified` / `verified` / `deprecated` 状态，记录适用环境、前提、失败信号、回退和 `last_verified`。历史未复验条目保持 `last_verified: null`；只有实际观察到预期结果才能升级为 verified。选择器失效时以当前观察修正本次操作。仅在用户授权维护本 Skill 时更新内置经验；普通检索不自动改写 Skill 或全局个人记忆。

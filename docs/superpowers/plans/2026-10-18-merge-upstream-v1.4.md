@@ -88,8 +88,9 @@
 
 - [x] **Step 1:** 新建 `references/task-protocol.md`（产出协议全文：任务目录、四件主产物、`trace.md` 列定义与禁记内容、中间产物分类、子 Agent 交接、完成判定）。
 - [x] **Step 2:** 本 fork 独有内容并入 `references/api-cookbook.md`（S2 速率守则、ID 类型表、`/paper/search/bulk`、`/snippet/search`、作者 batch、字段映射与引用/被引结构），CNKI 的 `crossids` 代码表与字段映射并入 `references/site-patterns/cnki.net.md`；与 `site-patterns/*` 重复的 Google Scholar/CNKI 浏览器流程不再重复。
-- [x] **Step 3:** `SKILL.md` 植入：任务产出协议（硬要求 + 指路）、完成判定、前置检查（含 `--api-only` 与无 Bash 环境的 Node 路径）、跨平台硬规则、并行分治 + S2 权限、S2 速率纪律指针。
+- [x] **Step 3:** `SKILL.md` 植入：任务产出协议（硬要求 + 指路）、完成判定、前置检查（`--api-only` 与 Windows PowerShell 等价脚本）、跨平台硬规则、并行分治 + S2 权限、S2 速率纪律指针。
 - [x] **Step 4:** 统一 S2 表述：按官方 API 产品页采用“未认证共享全局池 1000 req/s、带 Key 1 RPS”，替换上游旧值“无 Key 约 100 req/5min”；429 预防纪律与有界恢复预算分层（恢复不得立即重试）。
+- [x] **Step 5（后续修订）:** 前置检查位置调整：原放在 `## 运行路径与站点经验` 末尾（与运行时配置混在一起），改为文档首个章节 `## 前置检查（任何任务的第一步）`，并把 `ACADEMIC_SEARCH_ROOT` 路径约定一并前置；《任务产出协议》与本节互相引用，明确“先建任务目录与 `protocol.md`，再执行前置检查”的先后。`## 运行路径与站点经验` 只保留其余脚本调用与 CDP 配置说明。
 
 ### Task 4: D5 决策修订（先删除，后按用户要求恢复 PowerShell 实现）
 
