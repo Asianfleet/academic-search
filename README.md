@@ -4,9 +4,9 @@
 
 🌐 [English](README.en.md) | 简体中文
 
-## 本 fork 的增量
+## 本项目独有内容
 
-本仓库是 [ustc-ai4science/academic-search](https://github.com/ustc-ai4science/academic-search) 的 fork，在上游 v1.4 之上叠加了以下内容：
+在通用学术检索能力之上，本项目额外提供以下内容：
 
 - **任务产出协议**：需要产出文件的任务先建集中任务目录，交齐 `protocol.md`、`report.md`、`trace.md`、`manifest.json`；中间产物分类存放并登记，失败与回退逐行记入 `trace.md`。见 [任务产出协议](references/task-protocol.md)。
 - **S2 速率纪律**：Semantic Scholar 一律串行调用、请求前 sleep 1.5–2s、能批量就不单条；并行分治时 S2 只由一个专属子 Agent 调用，其余子 Agent 禁用其全部端点。见 [API cookbook](references/api-cookbook.md)。
@@ -356,4 +356,4 @@ academic-search/
 
 ## License
 
-MIT · 作者：[Mingyue Cheng](https://mingyue-cheng.github.io/)
+MIT · 原作者：[Mingyue Cheng](https://mingyue-cheng.github.io/)

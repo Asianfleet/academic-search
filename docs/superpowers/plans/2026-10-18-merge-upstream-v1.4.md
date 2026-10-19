@@ -24,7 +24,7 @@
 |---|---|---|
 | D1 | `api-cookbook` 走向 | **方案 A**：回到上游单文件 `references/api-cookbook.md`，并入本 fork 独有内容；删除 `references/api-cookbook/` 目录拆分 |
 | D2 | “无条件遵守”协议放哪 | **折中**：`SKILL.md` 保留 4–6 行硬要求 + 强制指路，细则进 `references/task-protocol.md` |
-| D3 | README clone URL | 不跟上游，改用本 fork 地址 `Asianfleet/academic-search`；**已补全（用户确认，统一到 A 方案）**：README.md / README.en.md 的 clone 与 install 链接、stars / last-commit / repo badge、Star History 链接与图表，以及 `project-introduction.md` 的项目地址全部改为 `Asianfleet/academic-search`；`wechat-promo.md`（上游推广文案，当前与上游一致）未改动，待定 |
+| D3 | README clone URL | 不跟上游，改用本 fork 地址 `Asianfleet/academic-search`；**已补全（用户确认，统一到 A 方案）**：README.md / README.en.md 的 clone 与 install 链接、stars / last-commit / repo badge、Star History 链接与图表，以及 `project-introduction.md` 的项目地址全部改为 `Asianfleet/academic-search`；`wechat-promo.md`（上游推广文案）**已按用户要求删除**，不再对外推广 |
 | D4 | 版本号 | fork 自有版本：`1.4.0+asianfleet.1` |
 | D5 | `check-deps.ps1` | ~~不再维护~~ **已修订（执行后用户要求恢复）**：保留 `scripts/check-deps.ps1`，按 v1.4 契约重写（参数门、curl 检查、凭据检查、Node 版本门、委托 `ensure-proxy.mjs`）；`scripts/check-deps-self-test.ps1` 暂未恢复（旧断言针对 v1.3 流程，需重写，待定） |
 | D6 | 本 fork 附加文档 | 原样保留（`docs/superpowers/plans/2026-05-08-check-deps-powershell.md`、`docs/multidisciplinary-improvement-analysis.md`） |
@@ -82,7 +82,7 @@
   - `README.md`：stars badge、Star History 链接、Codex / Claude 两处 clone、"帮我安装这个 skill" 链接、底部 Star History 图表（3 个 `api.star-history.com` URL）。
   - `README.en.md`：stars / last-commit / repo 三个 badge 的 `href` 与 `img src`（clone 与 install 链接在合并时已是 `Asianfleet`）。
   - `project-introduction.md`：项目地址。
-  - 未改动：`wechat-promo.md`（微信公众号推广文案，与上游保持一致），如需一并改为 fork 地址需用户确认。
+  - `wechat-promo.md`：**已删除**（用户决定不再保留上游公众号推广文案），同时从 `project-introduction.md` 的目录树中移除对应条目。
 
 ### Task 3: 本 fork 内容移植
 
@@ -97,7 +97,7 @@
 - [x] **Step 2（修订）:** 用户要求恢复 `check-deps.ps1`，按 v1.4 契约重写：参数校验（仅接受 `--api-only`）与 `check-deps.sh` 同语义、curl 检查、凭据检查（仅变量名）、`--api-only` 跳过浏览器准备、Node 22+ 版本门、委托 `node ensure-proxy.mjs` 并透传退出码；文件保留 UTF-8 BOM（PowerShell 5.1 中文输出所必需）。旧版的日常 Chrome 端口发现、自拉 cdp-proxy、`/targets` 轮询已删除（v1.4 不再需要）。
 - [x] **Step 3（修订）:** 文档恢复 Windows 入口：`README.md` / `README.en.md`（Quick Start、专用 Chrome 段、目录树）、`SKILL.md`（前置检查）、`project-introduction.md`（目录树）。
 - [x] **Step 4:** 保留 `docs/superpowers/plans/2026-05-08-check-deps-powershell.md`（按 D6）。
-- [ ] **Step 5（待用户决定）:** 是否重写 `scripts/check-deps-self-test.ps1`，覆盖 v1.4 契约（参数校验、凭据脱敏、`--api-only`、浏览器模式委托与退出码透传）。
+- [x] **Step 5（用户决定暂不写）:** `scripts/check-deps-self-test.ps1` 不恢复、也不重写。当前 PowerShell 版本只有手工实测作为验证手段（见 Task 6 Step 5），后续如需回归保护需新开任务补测试。
 
 ### Task 5: 一致性与版本号
 
@@ -120,7 +120,12 @@
 - [x] **Step 1:** 删除 `README.md` / `README.en.md` 开头的 logo 块（`assets/logo.png`）与全部 badge（version / license / test / stars / last-commit / repo）。改为纯 Markdown `#` 标题，保留副标题与语言切换行。
 - [x] **Step 2:** 删除 `README.md` 末尾的 `## Star History` 整节（含 star-history 链接与图表），以及开头的 Star History 文字链接。`README.en.md` 本无 Star History 节。
 - [x] **Step 3:** 在 `## News` 之前新增 fork 独有内容：中文标题 `## 本 fork 的增量`、英文 `## Fork-Specific Additions`，内容为任务产出协议、S2 速率纪律、API 凭据检查、Windows 原生入口、CNKI 补充、跨平台覆盖六项，并链到 `references/` 对应文件。`README.en.md` 的 Table of Contents 同步新增条目。
-- [x] **Step 4:** 验证：两文件已无 `logo.png` / `shields.io` / `star-history` 引用；新增章节位于 `## News` 之前；三个相对链接目标均存在。`assets/logo.png` 现已无引用，保留未删（待用户确认）。
+- [x] **Step 4:** 验证：两文件已无 `logo.png` / `shields.io` / `star-history` 引用；新增章节位于 `## News` 之前；三个相对链接目标均存在。
+- [x] **Step 5（后续修订）:** 根据用户反馈调整：
+  - 删除 `assets/logo.png`（已无引用）；`assets/academic-search-framework.png` 保留。
+  - 不显式暴露 fork 关系：章节标题改为「本项目独有内容」/「Project-Specific Additions」，开头句改为中性的「在通用学术检索能力之上，本项目额外提供以下内容：」，英文 TOC 同步改为 `#project-specific-additions`。
+  - `## License` 作者署名改为「原作者」/「Original author」，避免让人误以为本项目改写了原作者。
+  - 删除 `wechat-promo.md`，并从 `project-introduction.md` 目录树移除对应条目。
 
 ## 验证边界
 

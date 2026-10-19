@@ -31,9 +31,9 @@ Once installed, you can immediately ask Claude Code to perform an academic searc
 Search for top-venue papers on graph neural networks published after 2023, give me the top 10
 ```
 
-## Fork-Specific Additions
+## Project-Specific Additions
 
-This repository is a fork of [ustc-ai4science/academic-search](https://github.com/ustc-ai4science/academic-search) and adds the following on top of upstream v1.4:
+On top of general academic search capabilities, this project additionally provides:
 
 - **Task artifact protocol**: tasks that produce files must create one task directory and deliver `protocol.md`, `report.md`, `trace.md` and `manifest.json`; intermediate artifacts are classified, kept inside that directory and registered in the manifest, while failures and fallbacks are recorded in `trace.md`. See [Task Artifact Protocol](references/task-protocol.md).
 - **S2 rate discipline**: call Semantic Scholar serially, sleep 1.5–2s before each request, and prefer batch endpoints; when work is parallelized, one dedicated sub-agent owns all S2 calls and every other sub-agent is barred from all S2 endpoints. See [API cookbook](references/api-cookbook.md).
@@ -61,7 +61,7 @@ This repository is a fork of [ustc-ai4science/academic-search](https://github.co
 
 ## Table of Contents
 
-- [Fork-Specific Additions](#fork-specific-additions)
+- [Project-Specific Additions](#project-specific-additions)
 - [Overview](#overview)
 - [Core Features](#core-features)
 - [Installation](#installation)
@@ -444,4 +444,4 @@ academic-search/
 
 ## License
 
-MIT · Author: Mingyue Cheng
+MIT · Original author: Mingyue Cheng

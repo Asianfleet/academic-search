@@ -173,7 +173,6 @@ academic-search/
 ├── SKILL.md                    # 主 Skill 指令：任务协议、路由与硬要求
 ├── README.md                   # 中文说明
 ├── README.en.md                # 英文说明
-├── wechat-promo.md             # 推广介绍文案
 ├── scripts/
 │   ├── cdp-proxy.mjs           # CDP Proxy，专用 Chrome / 显式端点
 │   ├── ensure-proxy.mjs         # 代理就绪与进程归属核对
