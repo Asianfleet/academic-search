@@ -115,6 +115,13 @@
 
 **环境说明：** PowerShell 中文输出按系统 ANSI 代码页（本机 GBK）编码，与旧版行为一致；在 Git Bash 管道中查看会显示为乱码，属显示环境差异，不是脚本缺陷。
 
+### Task 7: README 首尾精简与 fork 增量章节
+
+- [x] **Step 1:** 删除 `README.md` / `README.en.md` 开头的 logo 块（`assets/logo.png`）与全部 badge（version / license / test / stars / last-commit / repo）。改为纯 Markdown `#` 标题，保留副标题与语言切换行。
+- [x] **Step 2:** 删除 `README.md` 末尾的 `## Star History` 整节（含 star-history 链接与图表），以及开头的 Star History 文字链接。`README.en.md` 本无 Star History 节。
+- [x] **Step 3:** 在 `## News` 之前新增 fork 独有内容：中文标题 `## 本 fork 的增量`、英文 `## Fork-Specific Additions`，内容为任务产出协议、S2 速率纪律、API 凭据检查、Windows 原生入口、CNKI 补充、跨平台覆盖六项，并链到 `references/` 对应文件。`README.en.md` 的 Table of Contents 同步新增条目。
+- [x] **Step 4:** 验证：两文件已无 `logo.png` / `shields.io` / `star-history` 引用；新增章节位于 `## News` 之前；三个相对链接目标均存在。`assets/logo.png` 现已无引用，保留未删（待用户确认）。
+
 ## 验证边界
 
 浏览器相关的 `make test-release` 依赖本机 Chrome 与专用 profile；公开学术站点、登录态、反爬行为不在本地 fixture 范围内，必须按实际观测报告，不据 v1.4 文档推断。

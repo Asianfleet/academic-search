@@ -1,35 +1,8 @@
-<table>
-  <tr>
-    <td width="220" valign="middle">
-      <img src="assets/logo.png" alt="academic-search logo" width="180" />
-    </td>
-    <td valign="middle">
-      <h1>academic-search skill</h1>
-    </td>
-  </tr>
-</table>
+# academic-search skill
 
-<p align="center">Academic search and paper metadata extraction for Codex, Claude Code, and compatible skill hosts</p>
+Academic search and paper metadata extraction for Codex, Claude Code, and compatible skill hosts
 
-<p align="center">
-  <img src="https://img.shields.io/badge/version-v1.4.0-0f766e" alt="version" />
-  <img src="https://img.shields.io/badge/license-MIT-1f2937" alt="license" />
-  <img src="https://img.shields.io/badge/test-make%20test%20%7C%20make%20test--release-2563eb" alt="test" />
-</p>
-
-<p align="center">
-  <a href="https://github.com/Asianfleet/academic-search/stargazers">
-    <img src="https://img.shields.io/github/stars/Asianfleet/academic-search?style=social" alt="GitHub stars" />
-  </a>
-  <a href="https://github.com/Asianfleet/academic-search/commits/main">
-    <img src="https://img.shields.io/github/last-commit/Asianfleet/academic-search" alt="last commit" />
-  </a>
-  <a href="https://github.com/Asianfleet/academic-search">
-    <img src="https://img.shields.io/badge/repo-GitHub-111827?logo=github" alt="repo link" />
-  </a>
-</p>
-
-<p align="center"><a href="README.md">简体中文</a> | English</p>
+[简体中文](README.md) | English
 
 academic-search skill brings academic-oriented retrieval strategy, cross-platform metadata normalization, and browser automation support to compatible skill hosts. It is designed for paper discovery, author analysis, citation lookup, open-access PDF retrieval, BibTeX export, and structured literature comparison across multiple sources.
 
@@ -58,6 +31,17 @@ Once installed, you can immediately ask Claude Code to perform an academic searc
 Search for top-venue papers on graph neural networks published after 2023, give me the top 10
 ```
 
+## Fork-Specific Additions
+
+This repository is a fork of [ustc-ai4science/academic-search](https://github.com/ustc-ai4science/academic-search) and adds the following on top of upstream v1.4:
+
+- **Task artifact protocol**: tasks that produce files must create one task directory and deliver `protocol.md`, `report.md`, `trace.md` and `manifest.json`; intermediate artifacts are classified, kept inside that directory and registered in the manifest, while failures and fallbacks are recorded in `trace.md`. See [Task Artifact Protocol](references/task-protocol.md).
+- **S2 rate discipline**: call Semantic Scholar serially, sleep 1.5–2s before each request, and prefer batch endpoints; when work is parallelized, one dedicated sub-agent owns all S2 calls and every other sub-agent is barred from all S2 endpoints. See [API cookbook](references/api-cookbook.md).
+- **Credential checks**: `scripts/check-deps.sh` and `scripts/check-deps.ps1` verify keys and emails in both modes and print environment variable names only, never values.
+- **Native Windows entry point**: `scripts/check-deps.ps1` mirrors the Bash checker and runs on PowerShell 5.1 and 7.
+- **CNKI additions**: `crossids` database codes and field mappings, see [CNKI site notes](references/site-patterns/cnki.net.md).
+- **Cross-platform coverage**: do not settle for a single platform; cross-check fields and results and record why you fell back.
+
 ## News
 
 [v1.4 release notes](docs/release-1.4.md) · [v1.3.1 browser isolation notes](docs/release-1.3.1.md) · [v1.3 release notes](docs/release-1.3.md)
@@ -77,6 +61,7 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 
 ## Table of Contents
 
+- [Fork-Specific Additions](#fork-specific-additions)
 - [Overview](#overview)
 - [Core Features](#core-features)
 - [Installation](#installation)

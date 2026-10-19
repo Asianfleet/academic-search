@@ -1,19 +1,19 @@
-<p align="center">
-  <img src="assets/logo.png" alt="academic-search" width="80" style="vertical-align:middle; margin-right:12px;" />
-  <strong style="font-size:2em; vertical-align:middle;">Academic-Search Skill</strong>
-</p>
+# Academic-Search Skill
 
-<p align="center">面向 Codex、Claude Code 等 Skill 宿主的学术检索与元数据提取。</p>
+面向 Codex、Claude Code 等 Skill 宿主的学术检索与元数据提取。
 
-<p align="center">
-  <img src="https://img.shields.io/badge/version-v1.4.0-0f766e" />
-  <img src="https://img.shields.io/badge/license-MIT-1f2937" />
-  <img src="https://img.shields.io/github/stars/Asianfleet/academic-search?style=social" />
-</p>
+🌐 [English](README.en.md) | 简体中文
 
-<p align="center">📈 <a href="https://www.star-history.com/?repos=Asianfleet%2Facademic-search&type=date&legend=top-left">Star History</a></p>
+## 本 fork 的增量
 
-<p align="center">🌐 <a href="README.en.md">English</a> | 简体中文</p>
+本仓库是 [ustc-ai4science/academic-search](https://github.com/ustc-ai4science/academic-search) 的 fork，在上游 v1.4 之上叠加了以下内容：
+
+- **任务产出协议**：需要产出文件的任务先建集中任务目录，交齐 `protocol.md`、`report.md`、`trace.md`、`manifest.json`；中间产物分类存放并登记，失败与回退逐行记入 `trace.md`。见 [任务产出协议](references/task-protocol.md)。
+- **S2 速率纪律**：Semantic Scholar 一律串行调用、请求前 sleep 1.5–2s、能批量就不单条；并行分治时 S2 只由一个专属子 Agent 调用，其余子 Agent 禁用其全部端点。见 [API cookbook](references/api-cookbook.md)。
+- **API 凭据检查**：`scripts/check-deps.sh` / `scripts/check-deps.ps1` 在两种模式下核对 Key 与邮箱，只输出环境变量名，绝不打印值。
+- **Windows 原生入口**：提供与 Bash 版等价的 PowerShell 检查脚本，PowerShell 5.1 与 7 均可用。
+- **CNKI 补充**：`crossids` 数据库代码表与字段映射，见 [CNKI 站点经验](references/site-patterns/cnki.net.md)。
+- **跨平台覆盖**：不得为省事只用单一平台，字段与结果应跨平台交叉核验，回退须记录原因。
 
 ---
 
@@ -357,17 +357,3 @@ academic-search/
 ## License
 
 MIT · 作者：[Mingyue Cheng](https://mingyue-cheng.github.io/)
-
----
-
-## Star History
-
-<p align="center">
-  <a href="https://www.star-history.com/?repos=Asianfleet%2Facademic-search&amp;type=date&amp;legend=top-left">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Asianfleet/academic-search&amp;type=Date&amp;theme=dark" />
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Asianfleet/academic-search&amp;type=Date" />
-      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Asianfleet/academic-search&amp;type=Date" />
-    </picture>
-  </a>
-</p>
