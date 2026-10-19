@@ -1,19 +1,19 @@
-<p align="center">
-  <img src="assets/logo.png" alt="academic-search" width="80" style="vertical-align:middle; margin-right:12px;" />
-  <strong style="font-size:2em; vertical-align:middle;">Academic-Search Skill</strong>
-</p>
+# Academic-Search Skill
 
-<p align="center">面向 Codex、Claude Code 等 Skill 宿主的学术检索与元数据提取。</p>
+面向 Codex、Claude Code 等 Skill 宿主的学术检索与元数据提取。
 
-<p align="center">
-  <img src="https://img.shields.io/badge/version-v1.4.0-0f766e" />
-  <img src="https://img.shields.io/badge/license-MIT-1f2937" />
-  <img src="https://img.shields.io/github/stars/ustc-ai4science/academic-search?style=social" />
-</p>
+🌐 [English](README.en.md) | 简体中文
 
-<p align="center">📈 <a href="https://www.star-history.com/?repos=ustc-ai4science%2Facademic-search&type=date&legend=top-left">Star History</a></p>
+## 本项目独有内容
 
-<p align="center">🌐 <a href="README.en.md">English</a> | 简体中文</p>
+在通用学术检索能力之上，本项目额外提供以下内容：
+
+- **任务产出协议**：需要产出文件的任务先建集中任务目录，交齐 `protocol.md`、`report.md`、`trace.md`、`manifest.json`；中间产物分类存放并登记，失败与回退逐行记入 `trace.md`。见 [任务产出协议](references/task-protocol.md)。
+- **S2 速率纪律**：Semantic Scholar 一律串行调用、请求前 sleep 1.5–2s、能批量就不单条；并行分治时 S2 只由一个专属子 Agent 调用，其余子 Agent 禁用其全部端点。见 [API cookbook](references/api-cookbook.md)。
+- **API 凭据检查**：`scripts/check-deps.sh` / `scripts/check-deps.ps1` 在两种模式下核对 Key 与邮箱，只输出环境变量名，绝不打印值。
+- **Windows 原生入口**：提供与 Bash 版等价的 PowerShell 检查脚本，PowerShell 5.1 与 7 均可用。
+- **CNKI 补充**：`crossids` 数据库代码表与字段映射，见 [CNKI 站点经验](references/site-patterns/cnki.net.md)。
+- **跨平台覆盖**：不得为省事只用单一平台，字段与结果应跨平台交叉核验，回退须记录原因。
 
 ---
 
@@ -47,11 +47,19 @@
 ## Quick Start
 
 ```bash
-git clone https://github.com/ustc-ai4science/academic-search academic-search
+git clone https://github.com/Asianfleet/academic-search academic-search
 cd academic-search
 # 仅使用此包的 CDP 浏览器模式时运行；API 检索不需要启动浏览器
 bash scripts/check-deps.sh
 ```
+
+Windows PowerShell（等价命令）：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
+```
+
+两个脚本语义相同：依赖与凭据检查（只输出环境变量名，不输出值），`--api-only` 只跳过浏览器准备。
 
 将此目录安装或链接到宿主的 Skill 目录后，直接提出任务：
 
@@ -132,14 +140,14 @@ Academic-Search 现在按学科选择检索源、query expansion、排序规则�
 
 ```bash
 # Codex
-git clone https://github.com/ustc-ai4science/academic-search ~/.codex/skills/academic-search
+git clone https://github.com/Asianfleet/academic-search ~/.codex/skills/academic-search
 
 # Claude Code
 # 方式一：手动安装
-git clone https://github.com/ustc-ai4science/academic-search ~/.claude/skills/academic-search
+git clone https://github.com/Asianfleet/academic-search ~/.claude/skills/academic-search
 
 # 方式二：让 Claude 安装
-# 帮我安装这个 skill：https://github.com/ustc-ai4science/academic-search
+# 帮我安装这个 skill：https://github.com/Asianfleet/academic-search
 
 # 方式三：本地开发软链接（在项目目录内执行）
 ln -sfn "$(pwd)" ~/.claude/skills/academic-search
@@ -151,7 +159,7 @@ ln -sfn "$(pwd)" ~/.claude/skills/academic-search
 
 **默认值迁移：v1.3.1 将 Proxy 端口从 3456 改为 3457。** 更新自定义调用脚本中的基址；不要把旧端口上运行的其他工具当作新版代理，也无需为此停止旧代理。
 
-在实际 Skill 目录运行 `bash scripts/check-deps.sh`，运行时会自动准备独立持久 profile：`~/.local/share/academic-search/chrome-profile`。Chrome 调试端口由系统动态分配，仅绑定本机；不会扫描或连接日常 Chrome。首次访问需要登录的网站时，在此专用窗口中登录，日常浏览器的登录态不会复制。
+在实际 Skill 目录运行 `bash scripts/check-deps.sh`（API-only 任务加 `--api-only`，跳过浏览器准备并只做凭据与基础检查），运行时会自动准备独立持久 profile：`~/.local/share/academic-search/chrome-profile`。Chrome 调试端口由系统动态分配，仅绑定本机；不会扫描或连接日常 Chrome。首次访问需要登录的网站时，在此专用窗口中登录，日常浏览器的登录态不会复制。Windows 使用 `scripts/check-deps.ps1`，参数与语义相同。
 
 | 配置 | 用途 |
 |---|---|
@@ -298,18 +306,23 @@ curl -s "http://127.0.0.1:${CDP_PROXY_PORT:-3457}/close?target=ID"              
 ```
 academic-search/
 ├── Makefile                    # 标准测试入口（make test / make test-release）
-├── SKILL.md                    # 主指令文件（搜索哲学、平台矩阵、核心能力）
+├── SKILL.md                    # 主指令文件（任务协议、路由与硬要求）
 ├── scripts/
 │   ├── cdp-proxy.mjs           # CDP Proxy（专用 Chrome / 显式端点）
+│   ├── ensure-proxy.mjs         # 代理就绪与进程归属核对
+│   ├── proxy-owner.mjs          # 代理进程身份核验
+│   ├── browser-runtime.mjs      # 浏览器配置与启动参数
 │   ├── browser-page.mjs         # 网页正文提取与元素可操作性表达式
 │   ├── academic-records.mjs     # 学术记录校验与保守去重 CLI
-│   ├── check-deps.sh           # 环境检查 + 自动启动 Proxy
+│   ├── check-deps.sh           # 环境与凭据检查 + 自动启动 Proxy
+│   ├── check-deps.ps1          # Windows PowerShell 环境与凭据检查 + 自动启动 Proxy
 │   ├── oa-pdf-download.mjs     # OA PDF manifest 生成与开放 PDF 下载
 │   ├── oa-pdf-download-self-test.sh # OA PDF 下载 helper 回归测试
 │   ├── self-test.sh            # 本地回归测试
 │   └── release-test.sh         # 发布前测试
 ├── references/
 │   ├── api-cookbook.md         # 多平台调用速查
+│   ├── task-protocol.md        # 任务目录、产出协议与审计轨迹
 │   ├── metadata-schema.md      # 跨平台统一元数据 schema
 │   ├── academic-records.md     # 记录校验、去重与结果解释
 │   ├── venue-rankings.md       # CS 会议/期刊 CCF 分级速查
@@ -343,18 +356,4 @@ academic-search/
 
 ## License
 
-MIT · 作者：[Mingyue Cheng](https://mingyue-cheng.github.io/)
-
----
-
-## Star History
-
-<p align="center">
-  <a href="https://www.star-history.com/?repos=ustc-ai4science%2Facademic-search&amp;type=date&amp;legend=top-left">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ustc-ai4science/academic-search&amp;type=Date&amp;theme=dark" />
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ustc-ai4science/academic-search&amp;type=Date" />
-      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=ustc-ai4science/academic-search&amp;type=Date" />
-    </picture>
-  </a>
-</p>
+MIT · 原作者：[Mingyue Cheng](https://mingyue-cheng.github.io/)

@@ -1,7 +1,7 @@
 # Academic-Search 项目介绍
 
 > 基于本仓库 `README.md`、`SKILL.md`、`docs/` 与 `references/` 内容整理。
-> 项目地址：https://github.com/ustc-ai4science/academic-search
+> 项目地址：https://github.com/Asianfleet/academic-search
 
 ## 一句话定位
 
@@ -170,22 +170,31 @@ Academic-Search 关心的对象不是网页，而是论文和论文元数据。�
 ```text
 academic-search/
 ├── Makefile                    # 标准测试入口
-├── SKILL.md                    # 主 Skill 指令：搜索哲学、平台矩阵、学科路由、执行策略
+├── SKILL.md                    # 主 Skill 指令：任务协议、路由与硬要求
 ├── README.md                   # 中文说明
 ├── README.en.md                # 英文说明
-├── wechat-promo.md             # 推广介绍文案
 ├── scripts/
 │   ├── cdp-proxy.mjs           # CDP Proxy，专用 Chrome / 显式端点
-│   ├── check-deps.sh           # 环境检查
+│   ├── ensure-proxy.mjs         # 代理就绪与进程归属核对
+│   ├── proxy-owner.mjs          # 代理进程身份核验
+│   ├── browser-runtime.mjs      # 浏览器配置与启动参数
+│   ├── browser-page.mjs         # 网页正文提取与元素可操作性表达式
+│   ├── academic-records.mjs     # 学术记录校验与保守去重 CLI
+│   ├── check-deps.sh           # 环境与凭据检查 + 自动启动 Proxy
+│   ├── check-deps.ps1          # Windows PowerShell 环境与凭据检查 + 自动启动 Proxy
 │   ├── oa-pdf-download.mjs     # 开放 PDF manifest 生成与下载
 │   ├── oa-pdf-download-self-test.sh # 开放 PDF 下载 helper 回归测试
 │   ├── self-test.sh            # 本地回归测试
 │   └── release-test.sh         # 发布前测试
 ├── references/
 │   ├── api-cookbook.md         # 多平台 API 调用模板
+│   ├── task-protocol.md        # 任务目录、产出协议与审计轨迹
 │   ├── metadata-schema.md      # 统一论文元数据 schema
+│   ├── academic-records.md     # 记录校验、去重与结果解释
 │   ├── venue-rankings.md       # CS 会议 / 期刊 CCF 分级
 │   ├── cdp-api.md              # CDP Proxy API 说明
+│   ├── browser-workflow.md     # 页面观察、条件等待与结果核验
+│   ├── full-text-workflow.md   # OA 证据、文件验证与下载
 │   ├── disciplines/            # 多学科学科 profile
 │   ├── rankings/               # 学科评价和证据等级
 │   ├── workflows/              # 系统综述等研究工作流

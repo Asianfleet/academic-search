@@ -45,7 +45,37 @@ supersedes: null
 
 结果区域存在后核对查询词、年份、数据库范围和排序。翻页前记录页码和首条论文链接，翻页后检查标识变化；页数和累计唯一记录数可核对时应一致。被引/下载数为空时保留空值，不直接解释成 0。被引数保留 CNKI 来源和日期，与国际平台计数分别保存。
 
+映射到统一 schema 时：`td.quote a` → `citation_count`，`td.download a` → `download_count`（CNKI 特有），`.keyword a` → `keywords[]`，`location.href` → `cnki_url`（CNKI 特有）；`source_platforms` 记为 `"cnki"`。字段缺失保留空值，不补造。
+
 高级检索历史字段代码包括主题 SU、标题 TI、关键词 KY、作者 AU 等；具体控件、字段和排序选项以当前界面为准。不要依靠未经复验的 URL 参数假定过滤已经生效。
+
+### 数据库代码（crossids）
+
+```yaml
+id: cnki-crossids-database-codes
+operations: [search]
+status: unverified
+environment: browser-dom-kns8-historical
+preconditions: [已确认当前检索页仍接受 crossids 参数]
+recorded: 2026-04-05
+last_verified: null
+evidence: historical-url-parameters
+failure_signals: [参数被忽略, 数据库范围与预期不符, 落地页无结果区]
+fallback: 回到当前界面用检索控件手动限定数据库，不假定参数生效
+supersedes: null
+```
+
+历史 URL 入口 `https://kns.cnki.net/kns8/defaultresult/index?crossids={代码}&korder={字段代码}&kw={关键词}`，`crossids` 用逗号分隔、URL 编码为 `%2C`。
+
+| 代码 | 数据库 | 说明 |
+|------|--------|------|
+| `YSTT4HG0` | 中国学术期刊网络出版总库 | 主力期刊库，最常用 |
+| `LSTPFHG2` | 中国博硕士学位论文全文数据库 | 硕博论文 |
+| `IPFD9Y60` | 中国重要会议论文全文数据库 | 会议论文 |
+| `WSLHLHGH` | 中国重要报纸全文数据库 | 学术性低，一般不选 |
+| `NYHFWBF4` | 中国年鉴网络出版总库 | 年鉴统计，专项使用 |
+
+建议默认组合（学术检索）：`YSTT4HG0,LSTPFHG2,IPFD9Y60`。提交后必须按当前结果页的数据库筛选状态核对参数是否生效，并记录实际覆盖范围。
 
 ## 详情、摘要和全文
 

@@ -1,35 +1,8 @@
-<table>
-  <tr>
-    <td width="220" valign="middle">
-      <img src="assets/logo.png" alt="academic-search logo" width="180" />
-    </td>
-    <td valign="middle">
-      <h1>academic-search skill</h1>
-    </td>
-  </tr>
-</table>
+# academic-search skill
 
-<p align="center">Academic search and paper metadata extraction for Codex, Claude Code, and compatible skill hosts</p>
+Academic search and paper metadata extraction for Codex, Claude Code, and compatible skill hosts
 
-<p align="center">
-  <img src="https://img.shields.io/badge/version-v1.4.0-0f766e" alt="version" />
-  <img src="https://img.shields.io/badge/license-MIT-1f2937" alt="license" />
-  <img src="https://img.shields.io/badge/test-make%20test%20%7C%20make%20test--release-2563eb" alt="test" />
-</p>
-
-<p align="center">
-  <a href="https://github.com/ustc-ai4science/academic-search/stargazers">
-    <img src="https://img.shields.io/github/stars/ustc-ai4science/academic-search?style=social" alt="GitHub stars" />
-  </a>
-  <a href="https://github.com/ustc-ai4science/academic-search/commits/main">
-    <img src="https://img.shields.io/github/last-commit/ustc-ai4science/academic-search" alt="last commit" />
-  </a>
-  <a href="https://github.com/ustc-ai4science/academic-search">
-    <img src="https://img.shields.io/badge/repo-GitHub-111827?logo=github" alt="repo link" />
-  </a>
-</p>
-
-<p align="center"><a href="README.md">简体中文</a> | English</p>
+[简体中文](README.md) | English
 
 academic-search skill brings academic-oriented retrieval strategy, cross-platform metadata normalization, and browser automation support to compatible skill hosts. It is designed for paper discovery, author analysis, citation lookup, open-access PDF retrieval, BibTeX export, and structured literature comparison across multiple sources.
 
@@ -38,17 +11,36 @@ Compared with generic WebSearch and WebFetch, this skill focuses on three things
 ## Quick Start
 
 ```bash
-git clone https://github.com/ustc-ai4science/academic-search academic-search
+git clone https://github.com/Asianfleet/academic-search academic-search
 cd academic-search
 # Only for the bundled CDP browser mode; API retrieval does not need Chrome
 bash scripts/check-deps.sh
 ```
+
+Windows PowerShell (equivalent):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-deps.ps1
+```
+
+Both scripts behave the same: dependency and credential checks that print environment variable names only, never values; `--api-only` skips browser preparation.
 
 Once installed, you can immediately ask Claude Code to perform an academic search task, for example:
 
 ```text
 Search for top-venue papers on graph neural networks published after 2023, give me the top 10
 ```
+
+## Project-Specific Additions
+
+On top of general academic search capabilities, this project additionally provides:
+
+- **Task artifact protocol**: tasks that produce files must create one task directory and deliver `protocol.md`, `report.md`, `trace.md` and `manifest.json`; intermediate artifacts are classified, kept inside that directory and registered in the manifest, while failures and fallbacks are recorded in `trace.md`. See [Task Artifact Protocol](references/task-protocol.md).
+- **S2 rate discipline**: call Semantic Scholar serially, sleep 1.5–2s before each request, and prefer batch endpoints; when work is parallelized, one dedicated sub-agent owns all S2 calls and every other sub-agent is barred from all S2 endpoints. See [API cookbook](references/api-cookbook.md).
+- **Credential checks**: `scripts/check-deps.sh` and `scripts/check-deps.ps1` verify keys and emails in both modes and print environment variable names only, never values.
+- **Native Windows entry point**: `scripts/check-deps.ps1` mirrors the Bash checker and runs on PowerShell 5.1 and 7.
+- **CNKI additions**: `crossids` database codes and field mappings, see [CNKI site notes](references/site-patterns/cnki.net.md).
+- **Cross-platform coverage**: do not settle for a single platform; cross-check fields and results and record why you fell back.
 
 ## News
 
@@ -69,6 +61,7 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 
 ## Table of Contents
 
+- [Project-Specific Additions](#project-specific-additions)
 - [Overview](#overview)
 - [Core Features](#core-features)
 - [Installation](#installation)
@@ -160,13 +153,13 @@ Choose the directory for your host. Codex commonly uses `~/.codex/skills/academi
 **Option 1: Let Claude install it automatically**
 
 ```
-Install this skill for me: https://github.com/ustc-ai4science/academic-search
+Install this skill for me: https://github.com/Asianfleet/academic-search
 ```
 
 **Option 2: Manual**
 
 ```bash
-git clone https://github.com/ustc-ai4science/academic-search ~/.claude/skills/academic-search
+git clone https://github.com/Asianfleet/academic-search ~/.claude/skills/academic-search
 ```
 
 **Option 3: Local symlink (for development)**
@@ -187,6 +180,8 @@ Bundled CDP mode uses an installed Chrome executable. From the actual skill dire
 ```bash
 bash scripts/check-deps.sh
 ```
+
+Add `--api-only` for API-only tasks: it prints the credential and base checks (environment variable names only, never key values) and skips browser preparation. Windows uses the PowerShell equivalent `scripts/check-deps.ps1`, which takes the same arguments and behaves identically.
 
 The runtime automatically prepares a separate persistent profile at `~/.local/share/academic-search/chrome-profile`. Chrome selects a dynamic debugging port bound to loopback. The runtime reads only this profile's `DevToolsActivePort`; it does not scan or connect to your everyday Chrome. Sign in to websites in the dedicated window when first needed. Existing everyday-browser cookies and logins are not copied.
 
@@ -385,7 +380,7 @@ See `references/cdp-api.md` for the full API reference.
 ```
 academic-search/
 ├── Makefile                          # Standard test entry (make test / make test-release)
-├── SKILL.md                          # Main instruction (search philosophy + platform matrix + capabilities)
+├── SKILL.md                          # Main instruction (task protocol, routing, hard requirements)
 ├── README.md                         # Chinese README
 ├── README.en.md                      # English README (this file)
 ├── docs/
@@ -393,15 +388,20 @@ academic-search/
 │   └── multidisciplinary-improvement-analysis.md
 ├── scripts/
 │   ├── cdp-proxy.mjs                 # CDP Proxy HTTP server (managed Chrome / explicit endpoint)
+│   ├── ensure-proxy.mjs               # Proxy readiness and process-ownership checks
+│   ├── proxy-owner.mjs                # Proxy process identity verification
+│   ├── browser-runtime.mjs            # Browser configuration and launch arguments
 │   ├── browser-page.mjs               # Page extraction and element-actionability expressions
 │   ├── academic-records.mjs           # Record validation and conservative deduplication CLI
-│   ├── check-deps.sh                 # Environment check + auto-start Proxy
+│   ├── check-deps.sh                 # Environment and credential checks + auto-start Proxy
+│   ├── check-deps.ps1                # Windows PowerShell environment and credential checks + auto-start Proxy
 │   ├── oa-pdf-download.mjs           # OA PDF manifest generation and open PDF download
 │   ├── oa-pdf-download-self-test.sh  # Regression test for OA PDF download helper
 │   ├── self-test.sh                  # Base regression test (installed Chrome / explicit endpoint)
 │   └── release-test.sh               # Pre-release regression test (concurrency / invalid target / binary response)
 └── references/
     ├── api-cookbook.md               # Multi-platform call reference (curl examples + field mappings)
+    ├── task-protocol.md              # Task directory, artifact protocol and audit trace
     ├── academic-records.md            # Record validation, deduplication, and report interpretation
     ├── metadata-schema.md            # Cross-platform unified metadata schema + dedup rules + BibTeX templates
     ├── venue-rankings.md             # CS conference/journal CCF tier reference
@@ -444,4 +444,4 @@ academic-search/
 
 ## License
 
-MIT · Author: Mingyue Cheng
+MIT · Original author: Mingyue Cheng
